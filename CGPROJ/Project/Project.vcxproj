@@ -19,7 +19,35 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\initOpenGL_01.cpp" />
+    <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\mainLigting-Directional.cpp" />
+    <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\ShaderProgram.cpp" />
+    <ClCompile Include="src\Texture.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\Mesh.h" />
+    <ClInclude Include="src\ShaderProgram.h" />
+    <ClInclude Include="src\Texture.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\shaders\basic.frag" />
+    <None Include="res\shaders\basic.vert" />
+    <None Include="res\shaders\camera.frag" />
+    <None Include="res\shaders\camera.vert" />
+    <None Include="res\shaders\fragShader.glsl" />
+    <None Include="res\shaders\lamp.frag" />
+    <None Include="res\shaders\lamp.vert" />
+    <None Include="res\shaders\lighting-phong-mat-dir.frag" />
+    <None Include="res\shaders\lighting-phong-mat-dir.vert" />
+    <None Include="res\shaders\lighting-phong-material.frag" />
+    <None Include="res\shaders\lighting-phong-material.vert" />
+    <None Include="res\shaders\lighting-phong.frag" />
+    <None Include="res\shaders\lighting-phong.vert" />
+    <None Include="res\shaders\texture.frag" />
+    <None Include="res\shaders\texture.vert" />
+    <None Include="res\shaders\vertShader.glsl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -32,7 +60,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -45,7 +73,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
