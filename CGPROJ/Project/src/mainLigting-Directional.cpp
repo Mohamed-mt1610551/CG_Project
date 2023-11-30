@@ -25,6 +25,10 @@ bool gWireframe = false;
 const std::string texture1Filename = "res/images/box.png";
 const std::string texture2Filename = "res/images/mario1.png";
 const std::string floorImage = "res/images/floor.png";
+const int numPlanets = 4; // Excluding sun
+float planetAngles[numPlanets] = { 0.0f }; // Initial angles
+float selfRotationAngles[numPlanets] = { 0.0f }; // Self-rotation angles for each model
+
 
 // experiment with translation
 bool transDirection = true;
@@ -56,6 +60,8 @@ void update(double elapsedTime);
 void showFPS(GLFWwindow* window);
 bool initOpenGL();
 void Print_OpenGL_Version_Information();
+void updatePlanet(double deltaTime);
+void updateSelfRotation(double deltaTime);
 
 //-----------------------------------------------------------------------------
 // Main Application Entry Point
@@ -97,23 +103,31 @@ int main()
 	texture[3].loadTexture("res/models/Earth.jpg", true); //my floor
 	texture[4].loadTexture("res/models/Jupiter.jpg", true); //gold ball
 
-	// Model positions
+	// radius from sun 
 	glm::vec3 modelPos[] = {
-		glm::vec3(0.0f,-0.5f, 0.0f),			//sun 
-		glm::vec3(1.5f, -0.1f, 0.0f),		//Venus
-		glm::vec3(2.5f, -0.05f, 0.0f),		//Moon
-		glm::vec3(3.6f, -0.1f, 0.0f),		//Earth
-		glm::vec3(4.5f, -0.2f, 0.0f)		//Jupiter
+		glm::vec3(0.0f, 0.0f, 0.0f),  // Sun (stationary)
+		glm::vec3(10.0f, 0.0f, 0.0f),  // Venus
+		glm::vec3(15.5f, 0.0f, 0.0f),  // Moon
+		glm::vec3(20.5f, 0.0f, 0.0f),  // Earth
+		glm::vec3(25.0f, 0.0f, 0.0f)   // Jupiter
 	};
+
 
 	// Model scale
 	glm::vec3 modelScale[] = {
-		glm::vec3(1.0f, 1.0f, 1.0f),	// sun
+		glm::vec3(3.0f, 3.0f, 3.0f),	// sun
 		glm::vec3(0.2f, 0.2f, 0.2f),	// Venus
 		glm::vec3(0.1f, 0.1f, 0.1f),	// Moon
 		glm::vec3(0.2f, 0.2f, 0.2f),	// Earth
 		glm::vec3(0.4f, 0.4f, 0.4f),	// Jupiter
 	};
+
+	float sunRadius = modelScale[0].y; 
+
+	// Adjust modelPos for planets to start orbiting at the sun's center
+	for (int i = 1; i < numModels; i++) { 
+		modelPos[i].y += sunRadius / 2.0f;
+	}
 
 	double lastTime = glfwGetTime();
 	float angle = 0.0f;
@@ -132,6 +146,8 @@ int main()
 		// Poll for and process events
 		glfwPollEvents();
 		update(deltaTime);
+		updatePlanet(deltaTime);      // Updates planet orbit angles
+		updateSelfRotation(deltaTime); // Updates self-rotation angles
 
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -170,12 +186,23 @@ int main()
 		shaderProgram.setUniform("dirLight.diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
 		shaderProgram.setUniform("dirLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
 
-		// Render the scene
-		for (int i = 0; i < numModels; i++)
-		{
-			model = glm::translate(glm::mat4(1.0), modelPos[i]) * glm::scale(glm::mat4(1.0), modelScale[i]);
-			if (i != 0) // everything except sun
-				model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+		for (int i = 0; i < numModels; i++) {
+			glm::mat4 model = glm::mat4(1.0);
+
+			if (i == 0) { // Sun
+				model = glm::translate(model, modelPos[i]) * glm::scale(model, modelScale[i]);
+			}
+			else { 
+
+				// Orbit rotation
+				float orbitX = cos(planetAngles[i - 1]) * modelPos[i].x;
+				float orbitZ = sin(planetAngles[i - 1]) * modelPos[i].x;
+				glm::vec3 orbitPos = glm::vec3(orbitX, modelPos[i].y + sunRadius / 2.0f, orbitZ);
+				model = glm::translate(model, orbitPos) * glm::scale(model, modelScale[i]);
+
+				// Self-rotation
+				model = glm::rotate(model, glm::radians(selfRotationAngles[i]), glm::vec3(0.0f, 1.0f, 0.0f));
+			}
 			shaderProgram.setUniform("model", model);
 
 			//set material properties
@@ -409,4 +436,22 @@ void Print_OpenGL_Version_Information()
 	printf("GL Version (string)  : %s\n", version);
 	printf("GL Version (integer) : %d.%d\n", major, minor);
 	printf("GLSL Version         : %s\n", glslVersion);
+}
+
+void updatePlanet(double deltaTime) {
+	// Update planet angles
+	float rotationSpeeds[numPlanets] = { 0.5f, 0.3f, 0.2f, 0.1f }; // Example speeds
+	for (int i = 0; i < numPlanets; i++) {
+		planetAngles[i] += rotationSpeeds[i] * deltaTime;
+	}
+}
+
+void updateSelfRotation(double deltaTime) {
+	float selfRotationSpeeds[numPlanets] = { 10.0f, 15.0f, 20.0f, 25.0f }; // Example self-rotation speeds
+	for (int i = 0; i < numPlanets; i++) {
+		selfRotationAngles[i] += selfRotationSpeeds[i] * deltaTime;
+		if (selfRotationAngles[i] > 360.0f) {
+			selfRotationAngles[i] -= 360.0f;
+		}
+	}
 }
