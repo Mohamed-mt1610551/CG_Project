@@ -26,7 +26,8 @@ GLfloat scale = 0.3f;
 
 
 // experiment with translation
-bool Pmove = true;
+bool Pmove = true; // movement of planet
+bool isPaused = false; // toggle pause on/off
 float offset = 0.0f;
 float maxOffest = 0.7f;
 float increment = 0.01f;
@@ -74,8 +75,13 @@ int main()
 	ShaderProgram lightShader;
 	lightShader.loadShaders("res/shaders/lamp.vert", "res/shaders/lamp.frag");
 
+
+
+
+
+
 	// Load meshes and textures
-	const int numModels = 9;
+	const int numModels = 10;
 	Mesh mesh[numModels];
 	Texture texture[numModels];
 
@@ -88,10 +94,11 @@ int main()
 	mesh[6].loadOBJ("res/models/saturn/13906_Saturn_v1_l3.obj"); // Saturn
 	mesh[7].loadOBJ("res/models/uranus/13907_Uranus_v2_l3.obj"); // Uranus
 	mesh[8].loadOBJ("res/models/neptune/13908_Neptune_V2_l3.obj"); // Neptune
+	mesh[9].loadOBJ("res/models/earth/Earth.obj"); // Space
 
 	//load light model
-	Mesh lightMesh;
-	lightMesh.loadOBJ("res/models/light.obj");
+	//Mesh lightMesh;
+	//lightMesh.loadOBJ("res/models/light.obj");
 
 	texture[0].loadTexture("res/models/sun/13913_Sun_diff.jpg", true);
 	texture[1].loadTexture("res/models/mercury/mercury-texture.jpeg", true);
@@ -102,7 +109,7 @@ int main()
 	texture[6].loadTexture("res/models/saturn/Saturn_diff.jpg", true);
 	texture[7].loadTexture("res/models/uranus/13907_Uranus_planet_diff.jpg", true);
 	texture[8].loadTexture("res/models/neptune/13908_Neptune_planet_diff.jpg", true);
-
+	texture[9].loadTexture("res/models/Stars.jpg", true);
 
 	// radius from sun 
 	glm::vec3 modelPos[] = {
@@ -114,7 +121,8 @@ int main()
 		glm::vec3(70.0f, 0.0f, 0.0f),  // Jupiter
 		glm::vec3(90.0f, 0.0f, 0.0f),  // Saturn
 		glm::vec3(120.0f, 0.0f, 0.0f),  // Uranus
-		glm::vec3(150.0f, 0.0f, 0.0f)   // Neptune
+		glm::vec3(150.0f, 0.0f, 0.0f),  // Neptune
+		glm::vec3(0.0f, 0.0f, 0.0f),  // Space
 	};
 
 
@@ -129,6 +137,7 @@ int main()
 		glm::vec3(0.032f * scale),	// Saturn
 		glm::vec3(0.03f * scale) ,	// Uranus
 		glm::vec3(0.03f * scale),	// Neptune
+		glm::vec3(250.0f * scale),	// Space
 	};
 
 float sunRadius = modelScale[0].x; // Assuming x is the radius for the scaling
@@ -141,6 +150,14 @@ for (int i = 1; i < numModels; i++) {
 
 	double lastTime = glfwGetTime();
 	float angle = 0.0f;
+
+
+
+
+
+
+
+
 
 	//print card info
 	Print_OpenGL_Version_Information();
@@ -168,7 +185,7 @@ for (int i = 1; i < numModels; i++) {
 		view = fpsCamera.getViewMatrix();
 
 		// Create the projection matrix
-		projection = glm::perspective(glm::radians(fpsCamera.getFOV()), (float)gWindowWidth / (float)gWindowHeight, 0.1f, 200.0f);
+		projection = glm::perspective(glm::radians(fpsCamera.getFOV()), (float)gWindowWidth / (float)gWindowHeight, 0.1f, 400.0f);
 
 		//view position to be passed to fragment shader
 		glm::vec3 viewPos;
@@ -199,7 +216,7 @@ for (int i = 1; i < numModels; i++) {
 		for (int i = 0; i < numModels; i++) {
 			glm::mat4 model = glm::mat4(1.0);
 
-			if (i == 0) { // Sun
+			if (i == 0 || i==9) { // Sun or sapce
 				model = glm::translate(model, modelPos[i]) * glm::scale(model, modelScale[i]);
 			
 			}
@@ -301,7 +318,7 @@ bool initOpenGL()
 	glfwSetScrollCallback(gWindow, glfw_onMouseScroll);
 
 	// Hides and grabs cursor, unlimited movement
-	glfwSetInputMode(gWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(gWindow, GLFW_CURSOR, GLFW_CROSSHAIR_CURSOR);
 	glfwSetCursorPos(gWindow, gWindowWidth / 2.0, gWindowHeight / 2.0);
 
 	glClearColor(0.3f, 0.4f, 0.6f, 1.0f);
@@ -389,7 +406,7 @@ void update(double elapsedTime)
 
 	// Camera FPS movement
 
-	//go to planet
+//Go to planet
 // Lock the camera to a planet based on key press
 	
 	if (glfwGetKey(gWindow, GLFW_KEY_0) == GLFW_PRESS)
@@ -413,14 +430,24 @@ void update(double elapsedTime)
 	else if (glfwGetKey(gWindow, GLFW_KEY_9) == GLFW_PRESS)
 		currentPlanet = PlanetType::Neptune;
 	// Return to free camera control with the 'V' key
-
 	 if (glfwGetKey(gWindow, GLFW_KEY_V) == GLFW_PRESS)
 		currentPlanet = PlanetType::FreeCamera;
 
-	 if (currentPlanet != PlanetType::FreeCamera)
-		 Pmove = false;
-	 else
-		 Pmove = true;
+
+
+	 // Toggle movement of planets ON/OFF when 'P' is pressed
+	 if (glfwGetKey(gWindow, GLFW_KEY_P) == GLFW_PRESS) {
+		 Pmove = !Pmove;
+	 }
+
+	 // Check if the camera is not in free camera mode and pause accordingly
+	 if (currentPlanet != PlanetType::FreeCamera) {
+		 Pmove = false;	 
+	 }
+
+		 
+	 
+
 	// Update camera position based on the selected planet
 	 /* Preset position  * scale 
 	glm::vec3 modelPos[] = {
@@ -446,10 +473,12 @@ void update(double elapsedTime)
 	 // Need to add correct positions here 
 	switch (currentPlanet) {
 	case PlanetType::Sun:
-		fpsCamera.setPosition(glm::vec3(3.0f, 3.0f, -13.0f));
+		fpsCamera.setPosition(glm::vec3(-51.0f, 4.3f, 17.3f));
+		fpsCamera.setLook(glm::vec3(0.989f, -0.061f, -0.128f));
 		break;
 	case PlanetType::Mercury:
-		fpsCamera.setPosition(glm::vec3(10.0f, 0.0f, -13.0f));
+		fpsCamera.setPosition(glm::vec3(25.55f, 0.015f, 2.09f));
+		fpsCamera.setLook(glm::vec3(0.32f, -0.01f, -0.95f));
 		break;
 	case PlanetType::Venus:
 		fpsCamera.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -516,14 +545,17 @@ void showFPS(GLFWwindow* window)
 		previousSeconds = currentSeconds;
 		double fps = (double)frameCount / elapsedSeconds;
 		double msPerFrame = 1000.0 / fps;
-
+		std::string str = "(" + std::to_string(fpsCamera.getPosition().x) + ", " + std::to_string(fpsCamera.getPosition().y) + ", " + std::to_string(fpsCamera.getPosition().z) + ")";
+		std::string str1 = "(" + std::to_string(fpsCamera.getLook().x) + ", " + std::to_string(fpsCamera.getLook().y) + ", " + std::to_string(fpsCamera.getLook().z) + ")";
 		// The C++ way of setting the window title
 		std::ostringstream outs;
 		outs.precision(3);	// decimal places
 		outs << std::fixed
 			<< APP_TITLE << "    "
 			<< "FPS: " << fps << "    "
-			<< "Frame Time: " << msPerFrame << " (ms)";
+			<< "Frame Time: " << msPerFrame << " (ms)" << "    " 
+			<< "CamPos:"<< str  << "    " << "Look pos:" << str1 ;
+		
 		glfwSetWindowTitle(window, outs.str().c_str());
 
 		// Reset for next average.

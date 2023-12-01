@@ -49,7 +49,7 @@ public:
 	FPSCamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), float yaw = glm::pi<float>(),
 		float pitch = 0.0f);
 	FPSCamera(glm::vec3 postion, glm::vec3 target);
-
+	virtual void setLook(const glm::vec3& look);
 	virtual void setPosition(const glm::vec3& position) ;
 	virtual void rotate(float yaw, float pitch) ;
 	virtual void move(const glm::vec3& offestpos);

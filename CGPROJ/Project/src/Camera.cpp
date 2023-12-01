@@ -63,6 +63,10 @@ void FPSCamera::setPosition(const glm::vec3& position)
 {
 	mPosition = position;
 }
+void FPSCamera::setLook(const glm::vec3& look)
+{
+	mTargetPos = mPosition + look;
+}
 
 void FPSCamera::rotate(float yaw, float pitch)
 {
