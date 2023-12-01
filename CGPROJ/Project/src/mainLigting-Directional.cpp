@@ -1,16 +1,10 @@
-//-----------------------------------------------------------------------------
-// mainLighting-Phong.cpp
-//
-// - Demo loading OBJ files
-//-----------------------------------------------------------------------------
 #include <iostream>
 #include <sstream>
 #define GLEW_STATIC
-#include "GL/glew.h"	// Important - this header must come before glfw3 header
+#include "GL/glew.h"	
 #include "GLFW/glfw3.h"
 #include "GLM/glm.hpp"
-#include "GLM/gtc/matrix_transform.hpp" //added for transform
-
+#include "GLM/gtc/matrix_transform.hpp" 
 #include "ShaderProgram.h"
 #include "Texture.h"
 #include "Camera.h"
@@ -25,9 +19,10 @@ bool gWireframe = false;
 const std::string texture1Filename = "res/images/box.png";
 const std::string texture2Filename = "res/images/mario1.png";
 const std::string floorImage = "res/images/floor.png";
-const int numPlanets = 4; // Excluding sun
+const int numPlanets = 8; // Excluding sun
 float planetAngles[numPlanets] = { 0.0f }; // Initial angles
 float selfRotationAngles[numPlanets] = { 0.0f }; // Self-rotation angles for each model
+GLfloat scale = 0.3f;
 
 
 // experiment with translation
@@ -63,14 +58,11 @@ void Print_OpenGL_Version_Information();
 void updatePlanet(double deltaTime);
 void updateSelfRotation(double deltaTime);
 
-//-----------------------------------------------------------------------------
-// Main Application Entry Point
-//-----------------------------------------------------------------------------
+
 int main()
 {
 	if (!initOpenGL())
 	{
-		// An error occured
 		std::cerr << "GLFW initialization failed" << std::endl;
 		return -1;
 	}
@@ -83,51 +75,69 @@ int main()
 	lightShader.loadShaders("res/shaders/lamp.vert", "res/shaders/lamp.frag");
 
 	// Load meshes and textures
-	const int numModels = 5;
+	const int numModels = 9;
 	Mesh mesh[numModels];
 	Texture texture[numModels];
 
-	mesh[0].loadOBJ("res/models/sphere.obj"); //sun
-	mesh[1].loadOBJ("res/models/sphere.obj"); //Venus
-	mesh[2].loadOBJ("res/models/sphere.obj"); // Moon 
-	mesh[3].loadOBJ("res/models/sphere.obj"); // Earth        
-	mesh[4].loadOBJ("res/models/sphere.obj"); // Jupiter
+	mesh[0].loadOBJ("res/models/sun/sun.obj"); //sun
+	mesh[1].loadOBJ("res/models/mercury/mercury.obj"); //Mercury
+	mesh[2].loadOBJ("res/models/Venus/venus.obj"); // Venus 
+	mesh[3].loadOBJ("res/models/earth/Earth.obj"); // Earth        
+	mesh[4].loadOBJ("res/models/mars/mars.obj"); // Mars
+	mesh[5].loadOBJ("res/models/jupiter/jupiter.obj"); // Jupiter
+	mesh[6].loadOBJ("res/models/saturn/13906_Saturn_v1_l3.obj"); // Saturn
+	mesh[7].loadOBJ("res/models/uranus/13907_Uranus_v2_l3.obj"); // Uranus
+	mesh[8].loadOBJ("res/models/neptune/13908_Neptune_V2_l3.obj"); // Neptune
 
 	//load light model
 	Mesh lightMesh;
 	lightMesh.loadOBJ("res/models/light.obj");
 
-	texture[0].loadTexture("res/models/Sun.jpg", true);
-	texture[1].loadTexture("res/models/Venus.jpg", true);
-	texture[2].loadTexture("res/models/Moon.jpg", true);
-	texture[3].loadTexture("res/models/Earth.jpg", true); //my floor
-	texture[4].loadTexture("res/models/Jupiter.jpg", true); //gold ball
+	texture[0].loadTexture("res/models/sun/13913_Sun_diff.jpg", true);
+	texture[1].loadTexture("res/models/mercury/mercury-texture.jpeg", true);
+	texture[2].loadTexture("res/models/Venus/venus-texture.jpg", true);
+	texture[3].loadTexture("res/models/earth/Earth_TEXTURE_CM.tga", true); 
+	texture[4].loadTexture("res/models/mars/mars-texture.jpg", true); 
+	texture[5].loadTexture("res/models/jupiter/jupiter-texture.jpg", true);
+	texture[6].loadTexture("res/models/saturn/Saturn_diff.jpg", true);
+	texture[7].loadTexture("res/models/uranus/13907_Uranus_planet_diff.jpg", true);
+	texture[8].loadTexture("res/models/neptune/13908_Neptune_planet_diff.jpg", true);
+
 
 	// radius from sun 
 	glm::vec3 modelPos[] = {
 		glm::vec3(0.0f, 0.0f, 0.0f),  // Sun (stationary)
-		glm::vec3(10.0f, 0.0f, 0.0f),  // Venus
-		glm::vec3(15.5f, 0.0f, 0.0f),  // Moon
-		glm::vec3(20.5f, 0.0f, 0.0f),  // Earth
-		glm::vec3(25.0f, 0.0f, 0.0f)   // Jupiter
+		glm::vec3(20.0f, 0.0f, 0.0f),  // Mercury
+		glm::vec3(30.5f, 0.0f, 0.0f),  // Venus
+		glm::vec3(40.0f, 0.0f, 0.0f),  // Earth
+		glm::vec3(50.0f, 0.0f, 0.0f),  // Mars
+		glm::vec3(70.0f, 0.0f, 0.0f),  // Jupiter
+		glm::vec3(90.0f, 0.0f, 0.0f),  // Saturn
+		glm::vec3(120.0f, 0.0f, 0.0f),  // Uranus
+		glm::vec3(150.0f, 0.0f, 0.0f)   // Neptune
 	};
 
 
 	// Model scale
 	glm::vec3 modelScale[] = {
-		glm::vec3(3.0f, 3.0f, 3.0f),	// sun
-		glm::vec3(0.2f, 0.2f, 0.2f),	// Venus
-		glm::vec3(0.1f, 0.1f, 0.1f),	// Moon
-		glm::vec3(0.2f, 0.2f, 0.2f),	// Earth
-		glm::vec3(0.4f, 0.4f, 0.4f),	// Jupiter
+		glm::vec3(20.0f * scale),	// sun
+		glm::vec3(0.3f * scale),	// Mercury
+		glm::vec3(0.5f * scale),	// Venus
+		glm::vec3(0.5f * scale ),	// Earth
+		glm::vec3(0.3f * scale),	// Mars
+		glm::vec3(4.0f * scale),	// Jupiter
+		glm::vec3(0.032f * scale),	// Saturn
+		glm::vec3(0.03f * scale) ,	// Uranus
+		glm::vec3(0.03f * scale),	// Neptune
 	};
 
-	float sunRadius = modelScale[0].y; 
+float sunRadius = modelScale[0].x; // Assuming x is the radius for the scaling
 
-	// Adjust modelPos for planets to start orbiting at the sun's center
-	for (int i = 1; i < numModels; i++) { 
-		modelPos[i].y += sunRadius / 2.0f;
-	}
+// Adjust modelPos for planets to start orbiting at the edge of the sun's radius
+for (int i = 1; i < numModels; i++) {
+	// This assumes the orbit is in the x-z plane and the sun is at the origin
+	modelPos[i].x += sunRadius;
+}
 
 	double lastTime = glfwGetTime();
 	float angle = 0.0f;
@@ -191,9 +201,9 @@ int main()
 
 			if (i == 0) { // Sun
 				model = glm::translate(model, modelPos[i]) * glm::scale(model, modelScale[i]);
+			
 			}
-			else { 
-
+			else {
 				// Orbit rotation
 				float orbitX = cos(planetAngles[i - 1]) * modelPos[i].x;
 				float orbitZ = sin(planetAngles[i - 1]) * modelPos[i].x;
@@ -440,14 +450,14 @@ void Print_OpenGL_Version_Information()
 
 void updatePlanet(double deltaTime) {
 	// Update planet angles
-	float rotationSpeeds[numPlanets] = { 0.5f, 0.3f, 0.2f, 0.1f }; // Example speeds
+	float rotationSpeeds[numPlanets] = { 0.5f, 0.3f, 0.2f, 0.19f , 0.18f, 0.16f, 0.14f, 0.10f }; // Example speeds
 	for (int i = 0; i < numPlanets; i++) {
 		planetAngles[i] += rotationSpeeds[i] * deltaTime;
 	}
 }
 
 void updateSelfRotation(double deltaTime) {
-	float selfRotationSpeeds[numPlanets] = { 10.0f, 15.0f, 20.0f, 25.0f }; // Example self-rotation speeds
+	float selfRotationSpeeds[numPlanets] = { 10.0f, 15.0f, 20.0f, 25.0f , 20.0f , 19.0f , 18.0f , 18.0f }; // Example self-rotation speeds
 	for (int i = 0; i < numPlanets; i++) {
 		selfRotationAngles[i] += selfRotationSpeeds[i] * deltaTime;
 		if (selfRotationAngles[i] > 360.0f) {
