@@ -1,2 +1,4 @@
 ﻿  mainLigting-Directional.cpp
+D:\Classes\Fall23\ComputerGraphics\Project\CG_Project\CGPROJ\Project\src\mainLigting-Directional.cpp(543,51): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+D:\Classes\Fall23\ComputerGraphics\Project\CG_Project\CGPROJ\Project\src\mainLigting-Directional.cpp(550,61): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
   Project.vcxproj -> D:\Classes\Fall23\ComputerGraphics\Project\CG_Project\CGPROJ\Project\bin\Project.exe

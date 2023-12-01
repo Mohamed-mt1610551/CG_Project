@@ -31,7 +31,7 @@ float selfRotationAngles[numPlanets] = { 0.0f }; // Self-rotation angles for eac
 
 
 // experiment with translation
-bool transDirection = true;
+bool Pmove = true;
 float offset = 0.0f;
 float maxOffest = 0.7f;
 float increment = 0.01f;
@@ -192,14 +192,20 @@ int main()
 			if (i == 0) { // Sun
 				model = glm::translate(model, modelPos[i]) * glm::scale(model, modelScale[i]);
 			}
-			else { 
-
-				// Orbit rotation
-				float orbitX = cos(planetAngles[i - 1]) * modelPos[i].x;
-				float orbitZ = sin(planetAngles[i - 1]) * modelPos[i].x;
-				glm::vec3 orbitPos = glm::vec3(orbitX, modelPos[i].y + sunRadius / 2.0f, orbitZ);
-				model = glm::translate(model, orbitPos) * glm::scale(model, modelScale[i]);
-
+			else 
+			{ 
+				if (Pmove ==true)
+				{
+					// Orbit rotation
+					float orbitX = cos(planetAngles[i - 1]) * modelPos[i].x;
+					float orbitZ = sin(planetAngles[i - 1]) * modelPos[i].x;
+					glm::vec3 orbitPos = glm::vec3(orbitX, modelPos[i].y + sunRadius / 2.0f, orbitZ);
+					model = glm::translate(model, orbitPos) * glm::scale(model, modelScale[i]);
+				}
+				else 
+				{
+					model = glm::translate(model, modelPos[i]) * glm::scale(model, modelScale[i]);
+				}
 				// Self-rotation
 				model = glm::rotate(model, glm::radians(selfRotationAngles[i]), glm::vec3(0.0f, 1.0f, 0.0f));
 			}
@@ -211,14 +217,7 @@ int main()
 			shaderProgram.setUniform("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
 			shaderProgram.setUniform("material.shininess", 45.0f);
 
-			//set the gold ball
-			if (i == 4)
-			{
-				shaderProgram.setUniform("material.ambient", glm::vec3(0.24725f, 0.1995f, 0.0745f));
-				shaderProgram.setUniform("material.diffuse", glm::vec3(0.75164f, 0.60640f, 0.22f));
-				shaderProgram.setUniform("material.specular", glm::vec3(0.62828f, 0.5558f, 0.366f));
-				shaderProgram.setUniform("material.shininess", 51.2f);
-			}
+		
 
 			texture[i].bind(0);		// set the texture before drawing.  Our simple OBJ mesh loader does not do materials yet.
 			mesh[i].draw();			// Render the OBJ mesh
@@ -345,6 +344,21 @@ void glfw_onMouseScroll(GLFWwindow* window, double deltaX, double deltaY)
 	fpsCamera.setFOV((float)fov);
 }
 
+
+enum class PlanetType {
+	Sun = 0,
+	Mercury = 1,
+	Venus = 2,
+	Earth = 3,
+	Moon = 4,
+	Mars = 5,
+	Jupiter = 6,
+	Saturn = 7,
+	Uranus = 8,
+	Neptune = 9,
+	FreeCamera = 10
+};
+PlanetType currentPlanet = PlanetType::FreeCamera;
 //-----------------------------------------------------------------------------
 // Update stuff every frame
 //-----------------------------------------------------------------------------
@@ -364,6 +378,92 @@ void update(double elapsedTime)
 
 	// Camera FPS movement
 
+	//go to planet
+// Lock the camera to a planet based on key press
+	
+	if (glfwGetKey(gWindow, GLFW_KEY_0) == GLFW_PRESS)
+		currentPlanet = PlanetType::Sun;
+	else if (glfwGetKey(gWindow, GLFW_KEY_1) == GLFW_PRESS)
+		currentPlanet = PlanetType::Mercury;
+	else if (glfwGetKey(gWindow, GLFW_KEY_2) == GLFW_PRESS)
+		currentPlanet = PlanetType::Venus;
+	else if (glfwGetKey(gWindow, GLFW_KEY_3) == GLFW_PRESS)
+		currentPlanet = PlanetType::Earth;
+	else if (glfwGetKey(gWindow, GLFW_KEY_4) == GLFW_PRESS)
+		currentPlanet = PlanetType::Moon;
+	else if (glfwGetKey(gWindow, GLFW_KEY_5) == GLFW_PRESS)
+		currentPlanet = PlanetType::Mars;
+	else if (glfwGetKey(gWindow, GLFW_KEY_6) == GLFW_PRESS)
+		currentPlanet = PlanetType::Jupiter;
+	else if (glfwGetKey(gWindow, GLFW_KEY_7) == GLFW_PRESS)
+		currentPlanet = PlanetType::Saturn;
+	else if (glfwGetKey(gWindow, GLFW_KEY_8) == GLFW_PRESS)
+		currentPlanet = PlanetType::Uranus;
+	else if (glfwGetKey(gWindow, GLFW_KEY_9) == GLFW_PRESS)
+		currentPlanet = PlanetType::Neptune;
+	// Return to free camera control with the 'V' key
+
+	 if (glfwGetKey(gWindow, GLFW_KEY_V) == GLFW_PRESS)
+		currentPlanet = PlanetType::FreeCamera;
+
+	 if (currentPlanet != PlanetType::FreeCamera)
+		 Pmove = false;
+	 else
+		 Pmove = true;
+	// Update camera position based on the selected planet
+	 /* Preset position  * scale 
+	 	glm::vec3 modelPos[] = {
+		glm::vec3(0.0f, 0.0f, 0.0f),  // Sun (stationary)
+		glm::vec3(10.0f, 0.0f, 0.0f),  // Venus
+		glm::vec3(15.5f, 0.0f, 0.0f),  // Moon
+		glm::vec3(20.5f, 0.0f, 0.0f),  // Earth
+		glm::vec3(25.0f, 0.0f, 0.0f)   // Jupiter
+	};
+	 	glm::vec3 modelScale[] = {
+		glm::vec3(3.0f, 3.0f, 3.0f),	// sun
+		glm::vec3(0.2f, 0.2f, 0.2f),	// Venus
+		glm::vec3(0.1f, 0.1f, 0.1f),	// Moon
+		glm::vec3(0.2f, 0.2f, 0.2f),	// Earth
+		glm::vec3(0.4f, 0.4f, 0.4f),	// Jupiter
+	};
+	 
+	 */
+	 // Need to add correct positions here 
+	switch (currentPlanet) {
+	case PlanetType::Sun:
+		fpsCamera.setPosition(glm::vec3(3.0f, 3.0f, -13.0f));
+		break;
+	case PlanetType::Mercury:
+		fpsCamera.setPosition(glm::vec3(10.0f, 0.0f, -13.0f));
+		break;
+	case PlanetType::Venus:
+		fpsCamera.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		break;
+	case PlanetType::Earth:
+		fpsCamera.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		break;
+	case PlanetType::Moon:
+		fpsCamera.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		break;
+	case PlanetType::Mars:
+		fpsCamera.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		break;
+	case PlanetType::Jupiter:
+		fpsCamera.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		break;
+	case PlanetType::Saturn:
+		fpsCamera.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		break;
+	case PlanetType::Uranus:
+		fpsCamera.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		break;
+	case PlanetType::Neptune:
+		fpsCamera.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		break;
+	case PlanetType::FreeCamera:
+		// Do nothing, allow free camera control
+		break;
+	}
 	// Forward/backward
 	if (glfwGetKey(gWindow, GLFW_KEY_W) == GLFW_PRESS)
 		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * fpsCamera.getLook());
@@ -375,7 +475,6 @@ void update(double elapsedTime)
 		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * -fpsCamera.getRight());
 	else if (glfwGetKey(gWindow, GLFW_KEY_D) == GLFW_PRESS)
 		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * fpsCamera.getRight());
-
 	// Up/down
 	if (glfwGetKey(gWindow, GLFW_KEY_Z) == GLFW_PRESS)
 		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * fpsCamera.getUp());
