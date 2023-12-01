@@ -1,1 +1,5 @@
-C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\src\initOpenGL_01.cpp;C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\Debug\initOpenGL_01.obj
+C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\src\Camera.cpp;C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\Debug\Camera.obj
+C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\src\mainLigting-Directional.cpp;C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\Debug\mainLigting-Directional.obj
+C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\src\Mesh.cpp;C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\Debug\Mesh.obj
+C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\src\ShaderProgram.cpp;C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\Debug\ShaderProgram.obj
+C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\src\Texture.cpp;C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\Debug\Texture.obj

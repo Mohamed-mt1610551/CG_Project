@@ -119,38 +119,66 @@ bool Mesh::loadOBJ(const std::string& filename)
 			else if (cmd == "f")
 			{
 				std::string faceData;
-				int vertexIndex, uvIndex, normalIndex;
+				std::vector<int> faceVertexIndices, faceUVIndices, faceNormalIndices;
 
-				while (ss>>faceData)
+				while (ss >> faceData)
 				{
 					std::vector<std::string> data = split(faceData, "/");
 
-					if (data[0].size() > 0)
+					if (!data[0].empty())
 					{
-						sscanf_s(data[0].c_str(), "%d", &vertexIndex);
-						vertexIndices.push_back(vertexIndex);
+						int vertexIndex = std::stoi(data[0]);
+						faceVertexIndices.push_back(vertexIndex);
 					}
 
-					if (data.size() >= 1)
+					// Assuming your OBJ has the same number of UVs and normals as vertices
+					if (data.size() >= 2 && !data[1].empty()) // UVs
 					{
-						// Is face format v//vn?  If data[1] is empty string then
-						// this vertex has no texture coordinate
-						if (data[1].size() > 0)
-						{
-							sscanf_s(data[1].c_str(), "%d", &uvIndex);
-							uvIndices.push_back(uvIndex);
-						}
+						int uvIndex = std::stoi(data[1]);
+						faceUVIndices.push_back(uvIndex);
 					}
-					
-					if (data.size() >= 2)
+
+					if (data.size() == 3 && !data[2].empty()) // Normals
 					{
-						// Does this vertex have a normal?
-						if (data[2].size() > 0)
-						{
-							sscanf_s(data[2].c_str(), "%d", &normalIndex);
-							normalIndices.push_back(normalIndex);
-						}
+						int normalIndex = std::stoi(data[2]);
+						faceNormalIndices.push_back(normalIndex);
 					}
+				}
+
+				// If face is a quad (4 vertices), split it into two triangles
+				if (faceVertexIndices.size() == 4)
+				{
+					// Triangle 1
+					vertexIndices.push_back(faceVertexIndices[0]);
+					vertexIndices.push_back(faceVertexIndices[1]);
+					vertexIndices.push_back(faceVertexIndices[2]);
+					uvIndices.push_back(faceUVIndices[0]);
+					uvIndices.push_back(faceUVIndices[1]);
+					uvIndices.push_back(faceUVIndices[2]);
+					normalIndices.push_back(faceNormalIndices[0]);
+					normalIndices.push_back(faceNormalIndices[1]);
+					normalIndices.push_back(faceNormalIndices[2]);
+
+					// Triangle 2
+					vertexIndices.push_back(faceVertexIndices[0]);
+					vertexIndices.push_back(faceVertexIndices[2]);
+					vertexIndices.push_back(faceVertexIndices[3]);
+					uvIndices.push_back(faceUVIndices[0]);
+					uvIndices.push_back(faceUVIndices[2]);
+					uvIndices.push_back(faceUVIndices[3]);
+					normalIndices.push_back(faceNormalIndices[0]);
+					normalIndices.push_back(faceNormalIndices[2]);
+					normalIndices.push_back(faceNormalIndices[3]);
+				}
+				else if (faceVertexIndices.size() == 3) // Normal triangle
+				{
+					vertexIndices.insert(vertexIndices.end(), faceVertexIndices.begin(), faceVertexIndices.end());
+					uvIndices.insert(uvIndices.end(), faceUVIndices.begin(), faceUVIndices.end());
+					normalIndices.insert(normalIndices.end(), faceNormalIndices.begin(), faceNormalIndices.end());
+				}
+				else
+				{
+					// Handle non-triangle faces, if necessary
 				}
 			}
 		}
