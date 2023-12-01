@@ -3,6 +3,7 @@
 #include <iostream>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
+#include <vector>
 
 Texture::Texture()
 	:mTexture(0)
@@ -52,6 +53,61 @@ bool Texture::loadTexture(const string& fileName, bool generateMipMaps)
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	return true;
+}
+
+
+unsigned int loadCubemap(vector<std::string> faces)
+{
+	int width, height, nrComponents;
+	unsigned int textureID;
+	nrComponents=0;
+
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+	GLenum format = 0; 
+	if (nrComponents == 1) 
+		format = GL_RED; 
+	else if (nrComponents == 3) 
+		format = GL_RGB; 
+	else if (nrComponents == 4) 
+		format = GL_RGBA;
+	
+
+	//Load and create cube map
+	stbi_set_flip_vertically_on_load(true);
+
+	for (unsigned int i = 0; i < faces.size(); i++)
+	{
+		unsigned char* texData = stbi_load(faces[i].c_str(), &width, &height, &nrComponents, 0);
+		if (texData)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+				0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texData);
+			stbi_image_free(texData); 
+		}
+		else
+		{
+			std::cout << "Cubemap tex failed to load at path: " << faces[i] << std::endl;
+			stbi_image_free(texData); 
+		}
+	}
+
+
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); 
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE); 
+	
+
+	
+
+	
+	
+
+	return textureID;
 }
 
 void Texture::bind(GLuint texUnit)
