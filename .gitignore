@@ -29,5 +29,6 @@
 *.exe
 *.out
 *.app
-CGPROJ/.vs/CGPROJ/v16/.suo
-CHPROJ/Project/Debug
+CGPROJ/Project/Debug
+CGPROJ/Project/x64
+CGPROJ/.vs
