@@ -423,12 +423,16 @@ void update(double elapsedTime)
 		 Pmove = true;
 	// Update camera position based on the selected planet
 	 /* Preset position  * scale 
-	 	glm::vec3 modelPos[] = {
+	glm::vec3 modelPos[] = {
 		glm::vec3(0.0f, 0.0f, 0.0f),  // Sun (stationary)
-		glm::vec3(10.0f, 0.0f, 0.0f),  // Venus
-		glm::vec3(15.5f, 0.0f, 0.0f),  // Moon
-		glm::vec3(20.5f, 0.0f, 0.0f),  // Earth
-		glm::vec3(25.0f, 0.0f, 0.0f)   // Jupiter
+		glm::vec3(20.0f, 0.0f, 0.0f),  // Mercury
+		glm::vec3(30.5f, 0.0f, 0.0f),  // Venus
+		glm::vec3(40.0f, 0.0f, 0.0f),  // Earth
+		glm::vec3(50.0f, 0.0f, 0.0f),  // Mars
+		glm::vec3(70.0f, 0.0f, 0.0f),  // Jupiter
+		glm::vec3(90.0f, 0.0f, 0.0f),  // Saturn
+		glm::vec3(120.0f, 0.0f, 0.0f),  // Uranus
+		glm::vec3(150.0f, 0.0f, 0.0f)   // Neptune
 	};
 	 	glm::vec3 modelScale[] = {
 		glm::vec3(3.0f, 3.0f, 3.0f),	// sun
