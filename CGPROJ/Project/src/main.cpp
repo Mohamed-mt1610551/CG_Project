@@ -11,15 +11,17 @@
 #include "Mesh.h"
 #include <GLM/gtc/type_ptr.hpp>
 
+
 // Global Variables
 const char* APP_TITLE = "Solar System";
 int gWindowWidth = 1920;
 int gWindowHeight = 1080;
 GLFWwindow* gWindow = NULL;
 bool gWireframe = false;
-const int numPlanets = 8; // Excluding sun and space
-float planetAngles[numPlanets] = { 0.0f }; // Initial angles
-float selfRotationAngles[numPlanets] = { 0.0f }; // Self-rotation angles for each model
+const int numBodies = 9; // Including the sun and excluding space
+float planetAngles[numBodies] = { 0.0f }; // Initial angles
+float selfRotationAngles[numBodies] = { 0.0f }; // Self-rotation angles for each model
+float axialTilt[numBodies] = { 7.25f, 0.01f, 2.64f, 23.44f, 25.19f, 3.12f, 26.73f, 82.23f, 28.33f };
 GLfloat scale = 0.3f;
 
 
@@ -83,7 +85,7 @@ int main()
 
 
 
-	texture[0].loadTexture("res/models/Stars.jpg", true);
+	texture[0].loadTexture("res/models/space/Stars.jpg", true);
 	texture[1].loadTexture("res/models/mercury/mercury-texture.jpeg", true);
 	texture[2].loadTexture("res/models/Venus/venus-texture.jpg", true);
 	texture[3].loadTexture("res/models/earth/Earth_TEXTURE_CM.tga", true); 
@@ -190,7 +192,10 @@ for (int i = 1; i < numModels; i++) {
 
 		for (int i = 0; i < numModels; i++) {
 			glm::mat4 model = glm::mat4(1.0);
+
 			glUniform3f(glGetUniformLocation(shaderProgram.getProgram(), "light.ambient"), 0.05f, 0.05f, 0.05f);
+			
+			
 			if (i == 0 || i==9) { // Sun or sapce
 				model = glm::translate(model, modelPos[i]) * glm::scale(model, modelScale[i]);
 
@@ -208,6 +213,13 @@ for (int i = 1; i < numModels; i++) {
 					lightShader.setUniform("model", model);
 					lightShader.setUniform("view", view);
 					lightShader.setUniform("projection", projection);
+
+				
+						// Apply axial tilt to the sun
+						model = glm::rotate(model, glm::radians(axialTilt[0]), glm::vec3(0.0f, 0.0f, 1.0f));
+						// Apply self-rotation to the sun
+						model = glm::rotate(model, glm::radians(selfRotationAngles[0]), glm::vec3(0.0f, 1.0f, 0.0f));
+					
 	
 				}			
 			}
@@ -225,8 +237,13 @@ for (int i = 1; i < numModels; i++) {
 				{
 					model = glm::translate(model, modelPos[i]) * glm::scale(model, modelScale[i]);
 				}
-				// Self-rotation
-				model = glm::rotate(model, glm::radians(selfRotationAngles[i-1]), glm::vec3(0.0f, 1.0f, 0.0f));
+
+			  if(i > 0 && i < numBodies) {
+					// Apply axial tilt to the planets
+					model = glm::rotate(model, glm::radians(axialTilt[i]), glm::vec3(0.0f, 0.0f, 1.0f));
+					// Apply self-rotation to the planets
+					model = glm::rotate(model, glm::radians(selfRotationAngles[i]), glm::vec3(0.0f, 1.0f, 0.0f));
+				}
 			}
 			shaderProgram.setUniform("model", model);
 
@@ -567,24 +584,23 @@ void showFPS(GLFWwindow* window)
 
 void updatePlanet(double deltaTime) {
 	// Update planet angles
-	float rotationSpeeds[numPlanets] = { 0.5f, 0.3f, 0.2f, 0.19f , 0.18f, 0.16f, 0.14f, 0.10f }; // Example speeds
-	for (int i = 0; i < numPlanets; i++) {
+	float rotationSpeeds[numBodies-1] = { 0.5f, 0.3f, 0.2f, 0.19f , 0.18f, 0.16f, 0.14f, 0.10f }; // Example speeds
+	for (int i = 0; i < numBodies-1; i++) {
 		planetAngles[i] += rotationSpeeds[i] * deltaTime;
 	}
 }
 
-void updateSelfRotation(double deltaTime) {
-	float selfRotationSpeeds[numPlanets] = { 10.0f, 15.0f, 20.0f, 25.0f, 20.0f, 19.0f, 18.0f, 17.0f }; // Make sure Neptune has a speed
 
-	for (int i = 0; i < numPlanets; i++) {
+void updateSelfRotation(double deltaTime) {
+	// Example self-rotation speeds for all bodies including the sun
+	float selfRotationSpeeds[numBodies] = { 1.0f, 10.0f, 15.0f, 20.0f, 25.0f, 20.0f, 19.0f, 18.0f, 17.0f };
+
+	for (int i = 0; i < numBodies; i++) {
 		selfRotationAngles[i] += selfRotationSpeeds[i] * deltaTime;
 
 		// Correct if the angle exceeds 360 degrees
 		if (selfRotationAngles[i] > 360.0f) {
 			selfRotationAngles[i] -= 360.0f;
 		}
-
-		// Debug output
-		std::cout << "Planet " << i << " rotation angle: " << selfRotationAngles[i] << std::endl;
 	}
 }

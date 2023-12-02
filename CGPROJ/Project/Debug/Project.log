@@ -1,13 +1,4 @@
-﻿  Camera.cpp
-  mainLigting-Directional.cpp
-D:\Classes\Fall23\ComputerGraphics\Project\CG_Project\CGPROJ\Project\src\mainLigting-Directional.cpp(555,51): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-D:\Classes\Fall23\ComputerGraphics\Project\CG_Project\CGPROJ\Project\src\mainLigting-Directional.cpp(562,61): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-  Mesh.cpp
-  Planet.cpp
-  ShaderProgram.cpp
-  Texture.cpp
-  Generating Code...
-LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-glew32s.lib(glew.obj) : warning LNK4099: PDB 'vc120.pdb' was not found with 'glew32s.lib(glew.obj)' or at 'D:\Classes\Fall23\ComputerGraphics\Project\CG_Project\CGPROJ\Project\bin\vc120.pdb'; linking object as if no debug info
-  Project.vcxproj -> D:\Classes\Fall23\ComputerGraphics\Project\CG_Project\CGPROJ\Project\bin\Project.exe
+﻿  main.cpp
+C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\src\main.cpp(589,40): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\src\main.cpp(599,50): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+  Project.vcxproj -> C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\bin\Project.exe

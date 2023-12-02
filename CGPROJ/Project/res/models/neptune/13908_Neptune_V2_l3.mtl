@@ -2,18 +2,3 @@
 #
 #
 
-newmtl 13908_Neptune_planet Mesh_13908_Neptune_planet
-illum 2
-Ka 1.000000 1.000000 1.000000
-Kd 1.000000 1.000000 1.000000
-Ks 0.000000 0.000000 0.000000
-Ns 10.000000
-map_Kd 13908_Neptune_planet_diff.jpg
-
-newmtl 13908_Neptune_ring Mesh_13908_Neptune_ring
-illum 2
-Ka 0.678400 0.678400 0.678400
-Kd 0.678400 0.678400 0.678400
-Ks 0.000000 0.000000 0.000000
-Ns 10.000000
-
