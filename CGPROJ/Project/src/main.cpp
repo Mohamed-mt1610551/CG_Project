@@ -1,6 +1,9 @@
 #include <iostream>
 #include <sstream>
 #define GLEW_STATIC
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 #include "GL/glew.h"	
 #include "GLFW/glfw3.h"
 #include "GLM/glm.hpp"
@@ -58,6 +61,18 @@ int main()
 		std::cerr << "GLFW initialization failed" << std::endl;
 		return -1;
 	}
+
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+
+	// Setup Platform/Renderer bindings
+	ImGui_ImplGlfw_InitForOpenGL(gWindow, true);
+	ImGui_ImplOpenGL3_Init("#version 330");
 
 	//setting shaders
 	ShaderProgram shaderProgram, shaderProgramOneTex;
@@ -154,6 +169,30 @@ for (int i = 1; i < numModels; i++) {
 		update(deltaTime);
 		updatePlanet(deltaTime);      // Updates planet orbit angles
 		updateSelfRotation(deltaTime); // Updates self-rotation angles
+
+
+		// Start the Dear ImGui frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		// Create a window called "Simulation Instructions" and append into it
+		ImGui::Begin("Simulation Instructions");
+		ImGui::Text("Press 1 to view Mercury");
+		ImGui::Text("Press 2 to view Venus");
+		ImGui::Text("Press 3 to view Earth");
+		ImGui::Text("Press 4 to view Mars");
+		ImGui::Text("Press 5 to view Jupiter");
+		ImGui::Text("Press 6 to view Saturn");
+		ImGui::Text("Press 7 to view Uranus");
+		ImGui::Text("Press 8 to view Neptune");
+		ImGui::End();
+
+		// Rendering
+		ImGui::Render();
+		int display_w, display_h;
+		glfwGetFramebufferSize(gWindow, &display_w, &display_h);
+		glViewport(0, 0, display_w, display_h);
 
 		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -260,10 +299,16 @@ for (int i = 1; i < numModels; i++) {
 			texture[i].unbind(0);
 		}
 
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 		glfwSwapBuffers(gWindow);
 
 		lastTime = currentTime;
 	}
+	// Cleanup
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 
 	glfwTerminate();
 
