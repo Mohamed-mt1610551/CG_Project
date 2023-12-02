@@ -13,8 +13,8 @@
 
 // Global Variables
 const char* APP_TITLE = "Solar System";
-int gWindowWidth = 1600;
-int gWindowHeight = 1200;
+int gWindowWidth = 1920;
+int gWindowHeight = 1080;
 GLFWwindow* gWindow = NULL;
 bool gWireframe = false;
 const int numPlanets = 8; // Excluding sun and space
@@ -58,7 +58,7 @@ int main()
 
 	//setting shaders
 	ShaderProgram shaderProgram, shaderProgramOneTex;
-	shaderProgram.loadShaders("res/shaders/lighting-phong-mat-dir.vert", "res/shaders/lighting-phong-mat-dir.frag");
+	shaderProgram.loadShaders("res/shaders/directional-light.vert", "res/shaders/directional-light.frag");
 	ShaderProgram lightShader;
 	lightShader.loadShaders("res/shaders/lamp.vert", "res/shaders/lamp.frag");
 
