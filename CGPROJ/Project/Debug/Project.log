@@ -1,4 +1,1 @@
-﻿  main.cpp
-C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\src\main.cpp(589,40): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\src\main.cpp(599,50): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-  Project.vcxproj -> C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\bin\Project.exe
+﻿  Project.vcxproj -> C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\bin\Project.exe

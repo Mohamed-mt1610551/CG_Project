@@ -32,22 +32,10 @@
     <ClInclude Include="src\Texture.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\shaders\basic.frag" />
-    <None Include="res\shaders\basic.vert" />
-    <None Include="res\shaders\camera.frag" />
-    <None Include="res\shaders\camera.vert" />
-    <None Include="res\shaders\fragShader.glsl" />
+    <None Include="res\shaders\directional-light.frag" />
+    <None Include="res\shaders\directional-light.vert" />
     <None Include="res\shaders\lamp.frag" />
     <None Include="res\shaders\lamp.vert" />
-    <None Include="res\shaders\lighting-phong-mat-dir.frag" />
-    <None Include="res\shaders\lighting-phong-mat-dir.vert" />
-    <None Include="res\shaders\lighting-phong-material.frag" />
-    <None Include="res\shaders\lighting-phong-material.vert" />
-    <None Include="res\shaders\lighting-phong.frag" />
-    <None Include="res\shaders\lighting-phong.vert" />
-    <None Include="res\shaders\texture.frag" />
-    <None Include="res\shaders\texture.vert" />
-    <None Include="res\shaders\vertShader.glsl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
