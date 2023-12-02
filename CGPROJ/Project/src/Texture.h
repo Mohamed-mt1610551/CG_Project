@@ -17,7 +17,6 @@ public:
 		virtual ~Texture();
 
 		bool loadTexture(const string& fileName, bool generateMipMaps = true);
-		unsigned int loadCubemap(vector<std::string> faces);
 		void bind(GLuint texUnit = 0);
 		void unbind(GLuint texUnit);
 	
