@@ -142,7 +142,7 @@ int main()
 
 
 
-	//code to make the planets orbit abut the center of the sun (fix the offset)
+//code to make the planets orbit abut the center of the sun (fix the offset)
 float sunRadius = modelScale[9].x; // Assuming x is the radius for the scaling
 
 // Adjust modelPos for planets to start orbiting at the edge of the sun's radius
