@@ -35,6 +35,7 @@ FPSCamera fpsCamera(glm::vec3(20.0f, 20.0f, 10.0f));
 
 const double ZOOM_SENSITIVITY = -3.0;
 const float MOVE_SPEED = 5.0; // units per second
+float SPEED = 1.0;
 const float MOUSE_SENSITIVITY = 0.1f;
 
 // Function prototypes
@@ -110,7 +111,7 @@ int main()
 
 	// Model scale
 	glm::vec3 modelScale[] = {
-		glm::vec3(250.0f * scale),	// Space
+		glm::vec3(450.0f * scale),	// Space
 		glm::vec3(0.3f * scale),	// Mercury
 		glm::vec3(0.5f * scale),	// Venus
 		glm::vec3(0.5f * scale),	// Earth
@@ -161,7 +162,7 @@ for (int i = 1; i < numModels; i++) {
 		view = fpsCamera.getViewMatrix();
 
 		// Create the projection matrix
-		projection = glm::perspective(glm::radians(fpsCamera.getFOV()), (float)gWindowWidth / (float)gWindowHeight, 0.1f, 400.0f);
+		projection = glm::perspective(glm::radians(fpsCamera.getFOV()), (float)gWindowWidth / (float)gWindowHeight, 0.1f, 700.0f);
 
 		//view position to be passed to fragment shader
 		glm::vec3 viewPos;
@@ -298,7 +299,7 @@ bool initOpenGL()
 	glfwSetScrollCallback(gWindow, glfw_onMouseScroll);
 
 	// Hides and grabs cursor, unlimited movement
-	glfwSetInputMode(gWindow, GLFW_CURSOR, GLFW_CROSSHAIR_CURSOR);
+	glfwSetInputMode(gWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	glfwSetCursorPos(gWindow, gWindowWidth / 2.0, gWindowHeight / 2.0);
 
 	glClearColor(0.3f, 0.4f, 0.6f, 1.0f);
@@ -358,12 +359,11 @@ enum class PlanetType {
 	Mercury = 1,
 	Venus = 2,
 	Earth = 3,
-	Moon = 4,
-	Mars = 5,
-	Jupiter = 6,
-	Saturn = 7,
-	Uranus = 8,
-	Neptune = 9,
+	Mars = 4,
+	Jupiter = 5,
+	Saturn = 6,
+	Uranus = 7,
+	Neptune = 8,
 	FreeCamera = 10
 };
 PlanetType currentPlanet = PlanetType::FreeCamera;
@@ -398,16 +398,14 @@ void update(double elapsedTime)
 	else if (glfwGetKey(gWindow, GLFW_KEY_3) == GLFW_PRESS)
 		currentPlanet = PlanetType::Earth;
 	else if (glfwGetKey(gWindow, GLFW_KEY_4) == GLFW_PRESS)
-		currentPlanet = PlanetType::Moon;
-	else if (glfwGetKey(gWindow, GLFW_KEY_5) == GLFW_PRESS)
 		currentPlanet = PlanetType::Mars;
-	else if (glfwGetKey(gWindow, GLFW_KEY_6) == GLFW_PRESS)
+	else if (glfwGetKey(gWindow, GLFW_KEY_5) == GLFW_PRESS)
 		currentPlanet = PlanetType::Jupiter;
-	else if (glfwGetKey(gWindow, GLFW_KEY_7) == GLFW_PRESS)
+	else if (glfwGetKey(gWindow, GLFW_KEY_6) == GLFW_PRESS)
 		currentPlanet = PlanetType::Saturn;
-	else if (glfwGetKey(gWindow, GLFW_KEY_8) == GLFW_PRESS)
+	else if (glfwGetKey(gWindow, GLFW_KEY_7) == GLFW_PRESS)
 		currentPlanet = PlanetType::Uranus;
-	else if (glfwGetKey(gWindow, GLFW_KEY_9) == GLFW_PRESS)
+	else if (glfwGetKey(gWindow, GLFW_KEY_8) == GLFW_PRESS)
 		currentPlanet = PlanetType::Neptune;
 	// Return to free camera control with the 'V' key
 	 if (glfwGetKey(gWindow, GLFW_KEY_V) == GLFW_PRESS)
@@ -423,6 +421,7 @@ void update(double elapsedTime)
 	 // Check if the camera is not in free camera mode and pause accordingly
 	 if (currentPlanet != PlanetType::FreeCamera) {
 		 Pmove = false;	 
+		 fpsCamera.setFOV((float)45);
 	 }
 
 		 
@@ -431,16 +430,19 @@ void update(double elapsedTime)
 	// Update camera position based on the selected planet
 	 /* Preset position  * scale 
 	glm::vec3 modelPos[] = {
-		glm::vec3(0.0f, 0.0f, 0.0f),  // Sun (stationary)
-		glm::vec3(20.0f, 0.0f, 0.0f),  // Mercury
-		glm::vec3(30.5f, 0.0f, 0.0f),  // Venus
-		glm::vec3(40.0f, 0.0f, 0.0f),  // Earth
-		glm::vec3(50.0f, 0.0f, 0.0f),  // Mars
-		glm::vec3(70.0f, 0.0f, 0.0f),  // Jupiter
-		glm::vec3(90.0f, 0.0f, 0.0f),  // Saturn
-		glm::vec3(120.0f, 0.0f, 0.0f),  // Uranus
-		glm::vec3(150.0f, 0.0f, 0.0f)   // Neptune
+		glm::vec3(0.0f, 0.0f, 0.0f),  // Sun (stationary)	 0
+		glm::vec3(20.0f, 0.0f, 0.0f),  // Mercury			 1
+		glm::vec3(30.5f, 0.0f, 0.0f),  // Venus				2
+		glm::vec3(40.0f, 0.0f, 0.0f),  // Earth				3
+		glm::vec3(50.0f, 0.0f, 0.0f),  // Mars				4
+		glm::vec3(70.0f, 0.0f, 0.0f),  // Jupiter			5
+		glm::vec3(90.0f, 0.0f, 0.0f),  // Saturn			6
+		glm::vec3(120.0f, 0.0f, 0.0f),  // Uranus			7
+		glm::vec3(150.0f, 0.0f, 0.0f),  // Neptune			8
+		glm::vec3(0.0f, 0.0f, 0.0f),  // Space
 	};
+
+
 	 	glm::vec3 modelScale[] = {
 		glm::vec3(3.0f, 3.0f, 3.0f),	// sun
 		glm::vec3(0.2f, 0.2f, 0.2f),	// Venus
@@ -451,6 +453,7 @@ void update(double elapsedTime)
 	 
 	 */
 	 // Need to add correct positions here 
+	
 	switch (currentPlanet) {
 	case PlanetType::Sun:
 		fpsCamera.setPosition(glm::vec3(-51.0f, 4.3f, 17.3f));
@@ -461,28 +464,32 @@ void update(double elapsedTime)
 		fpsCamera.setLook(glm::vec3(0.32f, -0.01f, -0.95f));
 		break;
 	case PlanetType::Venus:
-		fpsCamera.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		fpsCamera.setPosition(glm::vec3(34.06f, -0.011f, 2.722f));
+		fpsCamera.setLook(glm::vec3(0.759f, 0.0069f, -0.65f));
 		break;
 	case PlanetType::Earth:
-		fpsCamera.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-		break;
-	case PlanetType::Moon:
-		fpsCamera.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		fpsCamera.setPosition(glm::vec3(44.498f, 0.0576f, 1.6299f));
+		fpsCamera.setLook(glm::vec3(0.7669f, 0.026693f, -0.641189f));
 		break;
 	case PlanetType::Mars:
-		fpsCamera.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		fpsCamera.setPosition(glm::vec3(54.6533f, 0.0568f, -1.0723f));
+		fpsCamera.setLook(glm::vec3(0.6318f, 0.0232f, 0.7747f));
 		break;
 	case PlanetType::Jupiter:
-		fpsCamera.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		fpsCamera.setPosition(glm::vec3(69.877f, -0.171f, -7.554f));
+		fpsCamera.setLook(glm::vec3(0.4064f, 0.0354f, 0.912f));
 		break;
 	case PlanetType::Saturn:
-		fpsCamera.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		fpsCamera.setPosition(glm::vec3(86.336f, -0.045f, -10.406f));
+		fpsCamera.setLook(glm::vec3(0.4999f, 0.007498f, 0.86599f));
 		break;
 	case PlanetType::Uranus:
-		fpsCamera.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		fpsCamera.setPosition(glm::vec3(121.084f, 0.30856f, -12.729855f));
+		fpsCamera.setLook(glm::vec3(0.10624f, -0.029151f, 0.99391f));
 		break;
 	case PlanetType::Neptune:
-		fpsCamera.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		fpsCamera.setPosition(glm::vec3(150.7784f, 2.20585f, -9.90607f));
+		fpsCamera.setLook(glm::vec3(0.268f, -0.149f, 0.951f));
 		break;
 	case PlanetType::FreeCamera:
 		// Do nothing, allow free camera control
@@ -490,20 +497,32 @@ void update(double elapsedTime)
 	}
 	// Forward/backward
 	if (glfwGetKey(gWindow, GLFW_KEY_W) == GLFW_PRESS)
-		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * fpsCamera.getLook());
+		fpsCamera.move(MOVE_SPEED *SPEED* (float)elapsedTime * fpsCamera.getLook());
 	else if (glfwGetKey(gWindow, GLFW_KEY_S) == GLFW_PRESS)
-		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * -fpsCamera.getLook());
+		fpsCamera.move(MOVE_SPEED * SPEED * (float)elapsedTime * -fpsCamera.getLook());
 
 	// Strafe left/right
 	if (glfwGetKey(gWindow, GLFW_KEY_A) == GLFW_PRESS)
-		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * -fpsCamera.getRight());
+		fpsCamera.move(MOVE_SPEED * SPEED * (float)elapsedTime * -fpsCamera.getRight());
 	else if (glfwGetKey(gWindow, GLFW_KEY_D) == GLFW_PRESS)
-		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * fpsCamera.getRight());
+		fpsCamera.move(MOVE_SPEED * SPEED * (float)elapsedTime * fpsCamera.getRight());
 	// Up/down
 	if (glfwGetKey(gWindow, GLFW_KEY_Z) == GLFW_PRESS)
-		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * fpsCamera.getUp());
+		fpsCamera.move(MOVE_SPEED * SPEED * (float)elapsedTime * fpsCamera.getUp());
 	else if (glfwGetKey(gWindow, GLFW_KEY_X) == GLFW_PRESS)
-		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * -fpsCamera.getUp());
+		fpsCamera.move(MOVE_SPEED * SPEED * (float)elapsedTime * -fpsCamera.getUp());
+
+	// doble increase/decrease  speed
+	if (glfwGetKey(gWindow, GLFW_KEY_COMMA) == GLFW_PRESS) {
+		if (SPEED <= 1.0)
+			SPEED = 1.0;
+		else
+		SPEED -= 2.0;
+	}
+	else if (glfwGetKey(gWindow, GLFW_KEY_PERIOD) == GLFW_PRESS)
+		SPEED += 2.0;
+
+
 }
 
 //-----------------------------------------------------------------------------
@@ -534,7 +553,7 @@ void showFPS(GLFWwindow* window)
 			<< APP_TITLE << "    "
 			<< "FPS: " << fps << "    "
 			<< "Frame Time: " << msPerFrame << " (ms)" << "    " 
-			<< "CamPos:"<< str  << "    " << "Look pos:" << str1 ;
+			<< "CamPos:"<< str  << "    " << "Look pos:" << str1  << "   FOV" << fpsCamera.getFOV();
 		
 		glfwSetWindowTitle(window, outs.str().c_str());
 
