@@ -9,17 +9,15 @@
 #include "Texture.h"
 #include "Camera.h"
 #include "Mesh.h"
+#include <GLM/gtc/type_ptr.hpp>
 
 // Global Variables
-const char* APP_TITLE = " Computer Graphics - Lighting - Directional Light";
+const char* APP_TITLE = "Solar System";
 int gWindowWidth = 1600;
 int gWindowHeight = 1200;
 GLFWwindow* gWindow = NULL;
 bool gWireframe = false;
-const std::string texture1Filename = "res/images/box.png";
-const std::string texture2Filename = "res/images/mario1.png";
-const std::string floorImage = "res/images/floor.png";
-const int numPlanets = 8; // Excluding sun
+const int numPlanets = 8; // Excluding sun and space
 float planetAngles[numPlanets] = { 0.0f }; // Initial angles
 float selfRotationAngles[numPlanets] = { 0.0f }; // Self-rotation angles for each model
 GLfloat scale = 0.3f;
@@ -32,17 +30,8 @@ float offset = 0.0f;
 float maxOffest = 0.7f;
 float increment = 0.01f;
 
-// experiment with rotation
-float curAngle = 0.0f;
 
-// experiment with scaling??
-bool sizeDirection = true;
-float curSize = 0.4f;
-float maxSize = 0.8f;
-float minSize = 0.1f;
-
-//FPSCamera fpsCamera(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(1.0, 1.0, 1.0));
-FPSCamera fpsCamera(glm::vec3(0.0f, 3.0f, 10.0f));
+FPSCamera fpsCamera(glm::vec3(20.0f, 20.0f, 10.0f));
 
 const double ZOOM_SENSITIVITY = -3.0;
 const float MOVE_SPEED = 5.0; // units per second
@@ -55,7 +44,6 @@ void glfw_onMouseScroll(GLFWwindow* window, double deltaX, double deltaY);
 void update(double elapsedTime);
 void showFPS(GLFWwindow* window);
 bool initOpenGL();
-void Print_OpenGL_Version_Information();
 void updatePlanet(double deltaTime);
 void updateSelfRotation(double deltaTime);
 
@@ -71,21 +59,15 @@ int main()
 	//setting shaders
 	ShaderProgram shaderProgram, shaderProgramOneTex;
 	shaderProgram.loadShaders("res/shaders/lighting-phong-mat-dir.vert", "res/shaders/lighting-phong-mat-dir.frag");
-
 	ShaderProgram lightShader;
 	lightShader.loadShaders("res/shaders/lamp.vert", "res/shaders/lamp.frag");
-
-
-
-
 
 
 	// Load meshes and textures
 	const int numModels = 10;
 	Mesh mesh[numModels];
 	Texture texture[numModels];
-
-	mesh[0].loadOBJ("res/models/sun/sun.obj"); //sun
+	mesh[0].loadOBJ("res/models/earth/Earth.obj"); // Space
 	mesh[1].loadOBJ("res/models/mercury/mercury.obj"); //Mercury
 	mesh[2].loadOBJ("res/models/Venus/venus.obj"); // Venus 
 	mesh[3].loadOBJ("res/models/earth/Earth.obj"); // Earth        
@@ -94,13 +76,13 @@ int main()
 	mesh[6].loadOBJ("res/models/saturn/13906_Saturn_v1_l3.obj"); // Saturn
 	mesh[7].loadOBJ("res/models/uranus/13907_Uranus_v2_l3.obj"); // Uranus
 	mesh[8].loadOBJ("res/models/neptune/13908_Neptune_V2_l3.obj"); // Neptune
-	mesh[9].loadOBJ("res/models/earth/Earth.obj"); // Space
+	mesh[9].loadOBJ("res/models/sun/sun.obj"); //sun
 
-	//load light model
-	//Mesh lightMesh;
-	//lightMesh.loadOBJ("res/models/light.obj");
 
-	texture[0].loadTexture("res/models/sun/13913_Sun_diff.jpg", true);
+
+
+
+	texture[0].loadTexture("res/models/Stars.jpg", true);
 	texture[1].loadTexture("res/models/mercury/mercury-texture.jpeg", true);
 	texture[2].loadTexture("res/models/Venus/venus-texture.jpg", true);
 	texture[3].loadTexture("res/models/earth/Earth_TEXTURE_CM.tga", true); 
@@ -109,9 +91,9 @@ int main()
 	texture[6].loadTexture("res/models/saturn/Saturn_diff.jpg", true);
 	texture[7].loadTexture("res/models/uranus/13907_Uranus_planet_diff.jpg", true);
 	texture[8].loadTexture("res/models/neptune/13908_Neptune_planet_diff.jpg", true);
-	texture[9].loadTexture("res/models/Stars.jpg", true);
+	texture[9].loadTexture("res/models/sun/13913_Sun_diff.jpg", true);
 
-	// radius from sun 
+	// distance from sun horizental
 	glm::vec3 modelPos[] = {
 		glm::vec3(0.0f, 0.0f, 0.0f),  // Sun (stationary)
 		glm::vec3(20.0f, 0.0f, 0.0f),  // Mercury
@@ -128,19 +110,22 @@ int main()
 
 	// Model scale
 	glm::vec3 modelScale[] = {
-		glm::vec3(20.0f * scale),	// sun
+		glm::vec3(250.0f * scale),	// Space
 		glm::vec3(0.3f * scale),	// Mercury
 		glm::vec3(0.5f * scale),	// Venus
-		glm::vec3(0.5f * scale ),	// Earth
+		glm::vec3(0.5f * scale),	// Earth
 		glm::vec3(0.3f * scale),	// Mars
 		glm::vec3(4.0f * scale),	// Jupiter
 		glm::vec3(0.032f * scale),	// Saturn
 		glm::vec3(0.03f * scale) ,	// Uranus
 		glm::vec3(0.03f * scale),	// Neptune
-		glm::vec3(250.0f * scale),	// Space
+		glm::vec3(20.0f *scale),	// Sun
 	};
 
-float sunRadius = modelScale[0].x; // Assuming x is the radius for the scaling
+
+
+	//code to make the planets orbit abut the center of the sun (fix the offset)
+float sunRadius = modelScale[9].x; // Assuming x is the radius for the scaling
 
 // Adjust modelPos for planets to start orbiting at the edge of the sun's radius
 for (int i = 1; i < numModels; i++) {
@@ -152,15 +137,6 @@ for (int i = 1; i < numModels; i++) {
 	float angle = 0.0f;
 
 
-
-
-
-
-
-
-
-	//print card info
-	Print_OpenGL_Version_Information();
 
 	// Rendering loop 
 	while (!glfwWindowShouldClose(gWindow))
@@ -176,7 +152,7 @@ for (int i = 1; i < numModels; i++) {
 		updatePlanet(deltaTime);      // Updates planet orbit angles
 		updateSelfRotation(deltaTime); // Updates self-rotation angles
 
-		// Clear the screen
+		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glm::mat4 model(1.0), view(1.0), projection(1.0);
@@ -194,31 +170,45 @@ for (int i = 1; i < numModels; i++) {
 		viewPos.z = fpsCamera.getPosition().z;
 
 		//set the light
-		glm::vec3 lightPos(0.0f, 1.0f, 10.0f);
+		glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
 		glm::vec3 lightColor(1.0f, 1.0f, 1.0f); //white color light
 
-		//move the light on x dir
-		angle += (float)deltaTime * 50.0f;
-		lightPos.x = 10.0f * sinf(glm::radians(angle));
+		////move the light on x dir
+		//angle += (float)deltaTime * 50.0f;
+		//lightPos.x = 10.0f * sinf(glm::radians(angle));
 
 		shaderProgram.use();
 
-		// Pass the matrices to the shader
-		shaderProgram.setUniform("view", view);
-		shaderProgram.setUniform("projection", projection);
-		shaderProgram.setUniform("viewPos", viewPos);
-		//set directional light
-		shaderProgram.setUniform("dirLight.direction", glm::vec3(0.0f, -0.9f, -0.17f));
-		shaderProgram.setUniform("dirLight.ambient", glm::vec3(0.8f, 0.8f, 0.8f));
-		shaderProgram.setUniform("dirLight.diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
-		shaderProgram.setUniform("dirLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+		// Set lights properties
+		glUniform3f(glGetUniformLocation(shaderProgram.getProgram(), "light.position"), lightPos.x, lightPos.y, lightPos.z);
+		glUniform3f(glGetUniformLocation(shaderProgram.getProgram(), "light.diffuse"), 1.0f, 1.0f, 1.0f);
+		glUniform3f(glGetUniformLocation(shaderProgram.getProgram(), "light.specular"), 0.0f, 0.0f, 0.0f);
+
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.getProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.getProgram(), "view"), 1, GL_FALSE, glm::value_ptr(view));
 
 		for (int i = 0; i < numModels; i++) {
 			glm::mat4 model = glm::mat4(1.0);
-
+			glUniform3f(glGetUniformLocation(shaderProgram.getProgram(), "light.ambient"), 0.05f, 0.05f, 0.05f);
 			if (i == 0 || i==9) { // Sun or sapce
 				model = glm::translate(model, modelPos[i]) * glm::scale(model, modelScale[i]);
+
+				if (i == 0) {
+					glUniform3f(glGetUniformLocation(shaderProgram.getProgram(), "light.ambient"), 0.4f, 0.4f, 0.4f);
+
+				}
 			
+				if (i == 9) {
+
+					// Draw the light
+			;
+					lightShader.use();
+					lightShader.setUniform("lightColor", lightColor);
+					lightShader.setUniform("model", model);
+					lightShader.setUniform("view", view);
+					lightShader.setUniform("projection", projection);
+	
+				}			
 			}
 			else 
 			{ 
@@ -235,7 +225,7 @@ for (int i = 1; i < numModels; i++) {
 					model = glm::translate(model, modelPos[i]) * glm::scale(model, modelScale[i]);
 				}
 				// Self-rotation
-				model = glm::rotate(model, glm::radians(selfRotationAngles[i]), glm::vec3(0.0f, 1.0f, 0.0f));
+				model = glm::rotate(model, glm::radians(selfRotationAngles[i-1]), glm::vec3(0.0f, 1.0f, 0.0f));
 			}
 			shaderProgram.setUniform("model", model);
 
@@ -252,16 +242,6 @@ for (int i = 1; i < numModels; i++) {
 			texture[i].unbind(0);
 		}
 
-		// Draw the light
-		//model = glm::translate(glm::mat4(1.0f), lightPos);
-		//lightShader.use();
-		//lightShader.setUniform("lightColor", lightColor);
-		//lightShader.setUniform("model", model);
-		//lightShader.setUniform("view", view);
-		//lightShader.setUniform("projection", projection);
-		//lightMesh.draw();
-
-		// Swap front and back buffers
 		glfwSwapBuffers(gWindow);
 
 		lastTime = currentTime;
@@ -564,25 +544,7 @@ void showFPS(GLFWwindow* window)
 
 	frameCount++;
 }
-// Print OpenGL version information
-void Print_OpenGL_Version_Information()
-{
-	const GLubyte* renderer = glGetString(GL_RENDERER);
-	const GLubyte* vendor = glGetString(GL_VENDOR);
-	const GLubyte* version = glGetString(GL_VERSION);
-	const GLubyte* glslVersion =
-		glGetString(GL_SHADING_LANGUAGE_VERSION);
 
-	GLint major, minor;
-	glGetIntegerv(GL_MAJOR_VERSION, &major);
-	glGetIntegerv(GL_MINOR_VERSION, &minor);
-
-	printf("GL Vendor            : %s\n", vendor);
-	printf("GL Renderer          : %s\n", renderer);
-	printf("GL Version (string)  : %s\n", version);
-	printf("GL Version (integer) : %d.%d\n", major, minor);
-	printf("GLSL Version         : %s\n", glslVersion);
-}
 
 void updatePlanet(double deltaTime) {
 	// Update planet angles
@@ -593,11 +555,17 @@ void updatePlanet(double deltaTime) {
 }
 
 void updateSelfRotation(double deltaTime) {
-	float selfRotationSpeeds[numPlanets] = { 10.0f, 15.0f, 20.0f, 25.0f , 20.0f , 19.0f , 18.0f , 18.0f }; // Example self-rotation speeds
+	float selfRotationSpeeds[numPlanets] = { 10.0f, 15.0f, 20.0f, 25.0f, 20.0f, 19.0f, 18.0f, 17.0f }; // Make sure Neptune has a speed
+
 	for (int i = 0; i < numPlanets; i++) {
 		selfRotationAngles[i] += selfRotationSpeeds[i] * deltaTime;
+
+		// Correct if the angle exceeds 360 degrees
 		if (selfRotationAngles[i] > 360.0f) {
 			selfRotationAngles[i] -= 360.0f;
 		}
+
+		// Debug output
+		std::cout << "Planet " << i << " rotation angle: " << selfRotationAngles[i] << std::endl;
 	}
 }
