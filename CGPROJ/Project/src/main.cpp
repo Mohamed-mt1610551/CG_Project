@@ -179,7 +179,7 @@ for (int i = 1; i < numModels; i++) {
 		glfwSetInputMode(gWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
 		ImGui::SetNextWindowPos(ImVec2(0, 0)); // Optional: Set the window to start at the top-left corner
-		ImGui::SetNextWindowSize(ImVec2(300, 250)); // Optional: Set the starting size of the window
+		ImGui::SetNextWindowSize(ImVec2(300, 280)); // Optional: Set the starting size of the window
 		ImGui::Begin("Simulation Instructions", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 		ImGui::Text("Press 1 to view Mercury");
 		ImGui::Text("Press 2 to view Venus");
@@ -189,7 +189,8 @@ for (int i = 1; i < numModels; i++) {
 		ImGui::Text("Press 6 to view Saturn");
 		ImGui::Text("Press 7 to view Uranus");
 		ImGui::Text("Press 8 to view Neptune");
-		ImGui::Text("Press 0 to view the Sun");
+		ImGui::Text("Press 9 to view the Sun");
+		ImGui::Text("Press 0 to view solar system");
 		ImGui::Text("Press P to Pause/Unpause ");
 		ImGui::Text("Press . to increase speed ");
 		ImGui::Text("Press , to decrease speed ");
@@ -423,7 +424,7 @@ void glfw_onMouseScroll(GLFWwindow* window, double deltaX, double deltaY)
 
 
 enum class PlanetType {
-	Sun = 0,
+	Sun = 9,
 	Mercury = 1,
 	Venus = 2,
 	Earth = 3,
@@ -432,6 +433,7 @@ enum class PlanetType {
 	Saturn = 6,
 	Uranus = 7,
 	Neptune = 8,
+	SolarSystem = 0,
 	FreeCamera = 10
 };
 PlanetType currentPlanet = PlanetType::FreeCamera;
@@ -457,7 +459,7 @@ void update(double elapsedTime)
 //Go to planet
 // Lock the camera to a planet based on key press
 	
-	if (glfwGetKey(gWindow, GLFW_KEY_0) == GLFW_PRESS)
+	if (glfwGetKey(gWindow, GLFW_KEY_9) == GLFW_PRESS)
 		currentPlanet = PlanetType::Sun;
 	else if (glfwGetKey(gWindow, GLFW_KEY_1) == GLFW_PRESS)
 		currentPlanet = PlanetType::Mercury;
@@ -475,6 +477,9 @@ void update(double elapsedTime)
 		currentPlanet = PlanetType::Uranus;
 	else if (glfwGetKey(gWindow, GLFW_KEY_8) == GLFW_PRESS)
 		currentPlanet = PlanetType::Neptune;
+	else if (glfwGetKey(gWindow, GLFW_KEY_0) == GLFW_PRESS)
+		currentPlanet = PlanetType::SolarSystem;
+
 	// Return to free camera control with the 'V' key
 	 if (glfwGetKey(gWindow, GLFW_KEY_V) == GLFW_PRESS)
 		currentPlanet = PlanetType::FreeCamera;
@@ -532,6 +537,11 @@ void update(double elapsedTime)
 	case PlanetType::Neptune:
 		fpsCamera.setPosition(glm::vec3(150.7784f, 2.20585f, -9.90607f));
 		fpsCamera.setLook(glm::vec3(0.268f, -0.149f, 0.951f));
+		break;
+	case PlanetType::SolarSystem:
+		Pmove = true;
+		fpsCamera.setPosition(glm::vec3(-125.16738f, 94.50468f, 22.046551f));
+		fpsCamera.setLook(glm::vec3(0.775134f, -0.61524f, -0.143633f));
 		break;
 	case PlanetType::FreeCamera:
 		// Do nothing, allow free camera control
