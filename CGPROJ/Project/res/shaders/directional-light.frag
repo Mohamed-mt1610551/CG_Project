@@ -1,11 +1,9 @@
-
 #version 330 core
 
 in vec2 TexCoords;
 
 struct Light {
     vec3 position;
-    
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;

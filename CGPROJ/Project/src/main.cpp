@@ -14,7 +14,6 @@
 #include "Mesh.h"
 #include <GLM/gtc/type_ptr.hpp>
 
-
 // Global Variables
 const char* APP_TITLE = "Solar System";
 int gWindowWidth = 1920;
@@ -28,8 +27,8 @@ float axialTilt[numBodies] = { 7.25f, 0.01f, 2.64f, 23.44f, 25.19f, 3.12f, 26.73
 GLfloat scale = 0.3f;
 
 
-// experiment with translation
-bool Pmove = true; // movement of planet
+
+bool Pmove = true; // toggle movement of planet
 bool isPaused = false; // toggle pause on/off
 float offset = 0.0f;
 float maxOffest = 0.7f;
@@ -62,16 +61,16 @@ int main()
 		return -1;
 	}
 
-	// Setup Dear ImGui context
+
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange; 
 
-	// Setup Dear ImGui style
+
 	ImGui::StyleColorsDark();
 
-	// Setup Platform/Renderer bindings
+
 	ImGui_ImplGlfw_InitForOpenGL(gWindow, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
@@ -143,12 +142,11 @@ int main()
 
 
 
-//code to make the planets orbit abut the center of the sun (fix the offset)
+//code to make the planets orbit aboutt the center of the sun (fix the offset)
 float sunRadius = modelScale[9].x; // Assuming x is the radius for the scaling
 
-// Adjust modelPos for planets to start orbiting at the edge of the sun's radius
+
 for (int i = 1; i < numModels; i++) {
-	// This assumes the orbit is in the x-z plane and the sun is at the origin
 	modelPos[i].x += sunRadius;
 }
 
@@ -178,8 +176,8 @@ for (int i = 1; i < numModels; i++) {
 
 		glfwSetInputMode(gWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
-		ImGui::SetNextWindowPos(ImVec2(0, 0)); // Optional: Set the window to start at the top-left corner
-		ImGui::SetNextWindowSize(ImVec2(300, 280)); // Optional: Set the starting size of the window
+		ImGui::SetNextWindowPos(ImVec2(0, 0)); 
+		ImGui::SetNextWindowSize(ImVec2(300, 280)); 
 		ImGui::Begin("Simulation Instructions", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 		ImGui::Text("Press 1 to view Mercury");
 		ImGui::Text("Press 2 to view Venus");
@@ -215,11 +213,7 @@ for (int i = 1; i < numModels; i++) {
 		// Create the projection matrix
 		projection = glm::perspective(glm::radians(fpsCamera.getFOV()), (float)gWindowWidth / (float)gWindowHeight, 0.1f, 1000.0f);
 
-		//view position to be passed to fragment shader
-		//glm::vec3 viewPos;
-		//viewPos.x = fpsCamera.getPosition().x;
-		//viewPos.y = fpsCamera.getPosition().y;
-		//viewPos.z = fpsCamera.getPosition().z;
+
 
 		//set the light
 		glm::vec3 lightPos(0.0f, 0.0f, 0.0f);

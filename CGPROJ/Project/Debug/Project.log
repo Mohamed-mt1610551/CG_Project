@@ -1,6 +1,6 @@
 ﻿  main.cpp
-C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\src\main.cpp(624,40): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\src\main.cpp(634,50): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\src\main.cpp(618,40): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Rucel\Documents\GitHub\CG_Project\CGPROJ\Project\src\main.cpp(628,50): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
 LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
 LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
 glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
