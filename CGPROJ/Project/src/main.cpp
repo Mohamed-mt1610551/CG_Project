@@ -66,6 +66,7 @@ int main()
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange; 
 
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
@@ -128,7 +129,7 @@ int main()
 
 	// Model scale
 	glm::vec3 modelScale[] = {
-		glm::vec3(450.0f * scale),	// Space
+		glm::vec3(600.0f * scale),	// Space
 		glm::vec3(0.3f * scale),	// Mercury
 		glm::vec3(0.5f * scale),	// Venus
 		glm::vec3(0.5f * scale),	// Earth
@@ -171,13 +172,15 @@ for (int i = 1; i < numModels; i++) {
 		updateSelfRotation(deltaTime); // Updates self-rotation angles
 
 
-		// Start the Dear ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		// Create a window called "Simulation Instructions" and append into it
-		ImGui::Begin("Simulation Instructions");
+		glfwSetInputMode(gWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+		ImGui::SetNextWindowPos(ImVec2(0, 0)); // Optional: Set the window to start at the top-left corner
+		ImGui::SetNextWindowSize(ImVec2(300, 250)); // Optional: Set the starting size of the window
+		ImGui::Begin("Simulation Instructions", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 		ImGui::Text("Press 1 to view Mercury");
 		ImGui::Text("Press 2 to view Venus");
 		ImGui::Text("Press 3 to view Earth");
@@ -186,10 +189,16 @@ for (int i = 1; i < numModels; i++) {
 		ImGui::Text("Press 6 to view Saturn");
 		ImGui::Text("Press 7 to view Uranus");
 		ImGui::Text("Press 8 to view Neptune");
+		ImGui::Text("Press 0 to view the Sun");
+		ImGui::Text("Press P to Pause/Unpause ");
+		ImGui::Text("Press . to increase speed ");
+		ImGui::Text("Press , to decrease speed ");
+		ImGui::Text("Press V to unlock camera");
 		ImGui::End();
 
 		// Rendering
 		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		int display_w, display_h;
 		glfwGetFramebufferSize(gWindow, &display_w, &display_h);
 		glViewport(0, 0, display_w, display_h);
@@ -203,21 +212,18 @@ for (int i = 1; i < numModels; i++) {
 		view = fpsCamera.getViewMatrix();
 
 		// Create the projection matrix
-		projection = glm::perspective(glm::radians(fpsCamera.getFOV()), (float)gWindowWidth / (float)gWindowHeight, 0.1f, 700.0f);
+		projection = glm::perspective(glm::radians(fpsCamera.getFOV()), (float)gWindowWidth / (float)gWindowHeight, 0.1f, 1000.0f);
 
 		//view position to be passed to fragment shader
-		glm::vec3 viewPos;
-		viewPos.x = fpsCamera.getPosition().x;
-		viewPos.y = fpsCamera.getPosition().y;
-		viewPos.z = fpsCamera.getPosition().z;
+		//glm::vec3 viewPos;
+		//viewPos.x = fpsCamera.getPosition().x;
+		//viewPos.y = fpsCamera.getPosition().y;
+		//viewPos.z = fpsCamera.getPosition().z;
 
 		//set the light
 		glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
 		glm::vec3 lightColor(1.0f, 1.0f, 1.0f); //white color light
 
-		////move the light on x dir
-		//angle += (float)deltaTime * 50.0f;
-		//lightPos.x = 10.0f * sinf(glm::radians(angle));
 
 		shaderProgram.use();
 
@@ -489,32 +495,6 @@ void update(double elapsedTime)
 		 
 	 
 
-	// Update camera position based on the selected planet
-	 /* Preset position  * scale 
-	glm::vec3 modelPos[] = {
-		glm::vec3(0.0f, 0.0f, 0.0f),  // Sun (stationary)	 0
-		glm::vec3(20.0f, 0.0f, 0.0f),  // Mercury			 1
-		glm::vec3(30.5f, 0.0f, 0.0f),  // Venus				2
-		glm::vec3(40.0f, 0.0f, 0.0f),  // Earth				3
-		glm::vec3(50.0f, 0.0f, 0.0f),  // Mars				4
-		glm::vec3(70.0f, 0.0f, 0.0f),  // Jupiter			5
-		glm::vec3(90.0f, 0.0f, 0.0f),  // Saturn			6
-		glm::vec3(120.0f, 0.0f, 0.0f),  // Uranus			7
-		glm::vec3(150.0f, 0.0f, 0.0f),  // Neptune			8
-		glm::vec3(0.0f, 0.0f, 0.0f),  // Space
-	};
-
-
-	 	glm::vec3 modelScale[] = {
-		glm::vec3(3.0f, 3.0f, 3.0f),	// sun
-		glm::vec3(0.2f, 0.2f, 0.2f),	// Venus
-		glm::vec3(0.1f, 0.1f, 0.1f),	// Moon
-		glm::vec3(0.2f, 0.2f, 0.2f),	// Earth
-		glm::vec3(0.4f, 0.4f, 0.4f),	// Jupiter
-	};
-	 
-	 */
-	 // Need to add correct positions here 
 	
 	switch (currentPlanet) {
 	case PlanetType::Sun:
@@ -629,7 +609,7 @@ void showFPS(GLFWwindow* window)
 
 void updatePlanet(double deltaTime) {
 	// Update planet angles
-	float rotationSpeeds[numBodies-1] = { 0.5f, 0.3f, 0.2f, 0.19f , 0.18f, 0.16f, 0.14f, 0.10f }; // Example speeds
+	float rotationSpeeds[numBodies-1] = { 0.5f, 0.3f, 0.2f, 0.19f , 0.1f, 0.09f, 0.05f, 0.03f }; // Example speeds
 	for (int i = 0; i < numBodies-1; i++) {
 		planetAngles[i] += rotationSpeeds[i] * deltaTime;
 	}
@@ -638,7 +618,7 @@ void updatePlanet(double deltaTime) {
 
 void updateSelfRotation(double deltaTime) {
 	// Example self-rotation speeds for all bodies including the sun
-	float selfRotationSpeeds[numBodies] = { 1.0f, 10.0f, 15.0f, 20.0f, 25.0f, 20.0f, 19.0f, 18.0f, 17.0f };
+	float selfRotationSpeeds[numBodies] = { 1.0f, 10.0f, 9.8f, 9.5f, 10.0f, 7.2f, 7.0f, 5.0f, 6.0f };
 
 	for (int i = 0; i < numBodies; i++) {
 		selfRotationAngles[i] += selfRotationSpeeds[i] * deltaTime;
