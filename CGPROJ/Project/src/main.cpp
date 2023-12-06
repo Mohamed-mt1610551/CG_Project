@@ -13,8 +13,6 @@
 #include "Camera.h"
 #include "Mesh.h"
 #include <GLM/gtc/type_ptr.hpp>
-#include <stb_image/stb_image.h>
-
 
 // Global Variables
 const char* APP_TITLE = "Solar System";
@@ -22,15 +20,15 @@ int gWindowWidth = 1920;
 int gWindowHeight = 1080;
 GLFWwindow* gWindow = NULL;
 bool gWireframe = false;
-const int numBodies = 9; // Including the sun
+const int numBodies = 9; // Including the sun and excluding space
 float planetAngles[numBodies] = { 0.0f }; // Initial angles
 float selfRotationAngles[numBodies] = { 0.0f }; // Self-rotation angles for each model
 float axialTilt[numBodies] = { 7.25f, 0.01f, 2.64f, 23.44f, 25.19f, 3.12f, 26.73f, 82.23f, 28.33f };
 GLfloat scale = 0.3f;
 
 
-// experiment with translation
-bool Pmove = true; // movement of planet
+
+bool Pmove = true; // toggle movement of planet
 bool isPaused = false; // toggle pause on/off
 float offset = 0.0f;
 float maxOffest = 0.7f;
@@ -53,7 +51,6 @@ void showFPS(GLFWwindow* window);
 bool initOpenGL();
 void updatePlanet(double deltaTime);
 void updateSelfRotation(double deltaTime);
-unsigned int loadCubemap(std::vector<std::string> faces);
 
 
 int main()
@@ -64,126 +61,31 @@ int main()
 		return -1;
 	}
 
-	// Setup Dear ImGui context
+
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange; 
 
-	// Setup Dear ImGui style
+
 	ImGui::StyleColorsDark();
 
-	// Setup Platform/Renderer bindings
+
 	ImGui_ImplGlfw_InitForOpenGL(gWindow, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
-
-
-	// Skybox textures
-	std::vector<std::string> faces
-	{
-		"res/models/space/Right.jpg",
-		"res/models/space/Left.jpg",
-		"res/models/space/Top.jpg",
-		"res/models/space/Bottom.jpg",
-		"res/models/space/Front.jpg",
-		"res/models/space/Back.jpg"
-	};
-
-
-	// Define vertices for a cube
-	float skyboxVertices[] = {
-		// positions          
-		-1.0f,  1.0f, -1.0f,
-		-1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-
-		-1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
-
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-
-		-1.0f, -1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
-
-		-1.0f,  1.0f, -1.0f,
-		 1.0f,  1.0f, -1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f, -1.0f,
-
-		-1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		 1.0f, -1.0f,  1.0f
-	};
-
-	// Create VAO and VBO for the skybox
-	unsigned int skyboxVAO, skyboxVBO;
-	glGenVertexArrays(1, &skyboxVAO);
-	glGenBuffers(1, &skyboxVBO);
-	glBindVertexArray(skyboxVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
-
-
 	//setting shaders
 	ShaderProgram shaderProgram, shaderProgramOneTex;
-	// Load skybox shader
-	ShaderProgram skyboxShader;
-	skyboxShader.loadShaders("res/shaders/Skybox.vert", "res/shaders/Skybox.frag");
 	shaderProgram.loadShaders("res/shaders/directional-light.vert", "res/shaders/directional-light.frag");
 	ShaderProgram lightShader;
 	lightShader.loadShaders("res/shaders/lamp.vert", "res/shaders/lamp.frag");
 
-	unsigned int cubemapTexture = loadCubemap(faces);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	// Load meshes and textures
-	const int numModels = 9;
+	const int numModels = 10;
 	Mesh mesh[numModels];
 	Texture texture[numModels];
-	mesh[0].loadOBJ("res/models/sun/sun.obj"); //sun
+	mesh[0].loadOBJ("res/models/earth/Earth.obj"); // Space
 	mesh[1].loadOBJ("res/models/mercury/mercury.obj"); //Mercury
 	mesh[2].loadOBJ("res/models/Venus/venus.obj"); // Venus 
 	mesh[3].loadOBJ("res/models/earth/Earth.obj"); // Earth        
@@ -192,13 +94,13 @@ int main()
 	mesh[6].loadOBJ("res/models/saturn/13906_Saturn_v1_l3.obj"); // Saturn
 	mesh[7].loadOBJ("res/models/uranus/13907_Uranus_v2_l3.obj"); // Uranus
 	mesh[8].loadOBJ("res/models/neptune/13908_Neptune_V2_l3.obj"); // Neptune
-	
+	mesh[9].loadOBJ("res/models/sun/sun.obj"); //sun
 
 
 
 
 
-	texture[0].loadTexture("res/models/sun/13913_Sun_diff.jpg", true);
+	texture[0].loadTexture("res/models/space/Stars.jpg", true);
 	texture[1].loadTexture("res/models/mercury/mercury-texture.jpeg", true);
 	texture[2].loadTexture("res/models/Venus/venus-texture.jpg", true);
 	texture[3].loadTexture("res/models/earth/Earth_TEXTURE_CM.tga", true); 
@@ -207,7 +109,7 @@ int main()
 	texture[6].loadTexture("res/models/saturn/Saturn_diff.jpg", true);
 	texture[7].loadTexture("res/models/uranus/13907_Uranus_planet_diff.jpg", true);
 	texture[8].loadTexture("res/models/neptune/13908_Neptune_planet_diff.jpg", true);
-	
+	texture[9].loadTexture("res/models/sun/13913_Sun_diff.jpg", true);
 
 	// distance from sun horizental
 	glm::vec3 modelPos[] = {
@@ -220,13 +122,13 @@ int main()
 		glm::vec3(90.0f, 0.0f, 0.0f),  // Saturn
 		glm::vec3(120.0f, 0.0f, 0.0f),  // Uranus
 		glm::vec3(150.0f, 0.0f, 0.0f),  // Neptune
-
+		glm::vec3(0.0f, 0.0f, 0.0f),  // Space
 	};
 
 
 	// Model scale
 	glm::vec3 modelScale[] = {
-		glm::vec3(20.0f * scale),	// Sun
+		glm::vec3(600.0f * scale),	// Space
 		glm::vec3(0.3f * scale),	// Mercury
 		glm::vec3(0.5f * scale),	// Venus
 		glm::vec3(0.5f * scale),	// Earth
@@ -235,17 +137,16 @@ int main()
 		glm::vec3(0.032f * scale),	// Saturn
 		glm::vec3(0.03f * scale) ,	// Uranus
 		glm::vec3(0.03f * scale),	// Neptune
-	
+		glm::vec3(20.0f *scale),	// Sun
 	};
 
 
 
-//code to make the planets orbit abut the center of the sun (fix the offset)
-float sunRadius = modelScale[0].x; // Assuming x is the radius for the scaling
+//code to make the planets orbit aboutt the center of the sun (fix the offset)
+float sunRadius = modelScale[9].x; // Assuming x is the radius for the scaling
 
-// Adjust modelPos for planets to start orbiting at the edge of the sun's radius
+
 for (int i = 1; i < numModels; i++) {
-	// This assumes the orbit is in the x-z plane and the sun is at the origin
 	modelPos[i].x += sunRadius;
 }
 
@@ -257,31 +158,7 @@ for (int i = 1; i < numModels; i++) {
 	// Rendering loop 
 	while (!glfwWindowShouldClose(gWindow))
 	{
-		showFPS(gWindow);		
-		glm::mat4 skyboxView = glm::mat4(glm::mat3(fpsCamera.getViewMatrix())); // Remove translation from the view matrix
-		glm::mat4 skyboxProjection = glm::perspective(glm::radians(fpsCamera.getFOV()), (float)gWindowWidth / (float)gWindowHeight, 0.1f, 700.0f);
-
-
-		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glDepthMask(GL_FALSE); // Turn off depth writing
-		glDepthFunc(GL_LEQUAL); // Change the depth function
-
-		skyboxShader.use();
-		// Set the view and projection matrices in the shader
-		skyboxShader.setUniform("view", skyboxView);
-		skyboxShader.setUniform("projection", skyboxProjection);
-
-		// Bind the skybox texture and VAO, and draw the skybox
-		glBindVertexArray(skyboxVAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
-
-		// Reset depth function and enable depth writing again
-		glDepthFunc(GL_LESS);
-		glDepthMask(GL_TRUE);
+		showFPS(gWindow);
 
 		double currentTime = glfwGetTime();
 		double deltaTime = currentTime - lastTime;
@@ -293,13 +170,15 @@ for (int i = 1; i < numModels; i++) {
 		updateSelfRotation(deltaTime); // Updates self-rotation angles
 
 
-		// Start the Dear ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		// Create a window called "Simulation Instructions" and append into it
-		ImGui::Begin("Simulation Instructions");
+		glfwSetInputMode(gWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+		ImGui::SetNextWindowPos(ImVec2(0, 0)); 
+		ImGui::SetNextWindowSize(ImVec2(300, 280)); 
+		ImGui::Begin("Simulation Instructions", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 		ImGui::Text("Press 1 to view Mercury");
 		ImGui::Text("Press 2 to view Venus");
 		ImGui::Text("Press 3 to view Earth");
@@ -308,15 +187,23 @@ for (int i = 1; i < numModels; i++) {
 		ImGui::Text("Press 6 to view Saturn");
 		ImGui::Text("Press 7 to view Uranus");
 		ImGui::Text("Press 8 to view Neptune");
+		ImGui::Text("Press 9 to view the Sun");
+		ImGui::Text("Press 0 to view solar system");
+		ImGui::Text("Press P to Pause/Unpause ");
+		ImGui::Text("Press . to increase speed ");
+		ImGui::Text("Press , to decrease speed ");
+		ImGui::Text("Press V to unlock camera");
 		ImGui::End();
 
 		// Rendering
 		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		int display_w, display_h;
 		glfwGetFramebufferSize(gWindow, &display_w, &display_h);
 		glViewport(0, 0, display_w, display_h);
 
-
+		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glm::mat4 model(1.0), view(1.0), projection(1.0);
 
@@ -324,18 +211,13 @@ for (int i = 1; i < numModels; i++) {
 		view = fpsCamera.getViewMatrix();
 
 		// Create the projection matrix
-		projection = glm::perspective(glm::radians(fpsCamera.getFOV()), (float)gWindowWidth / (float)gWindowHeight, 0.1f, 700.0f);
+		projection = glm::perspective(glm::radians(fpsCamera.getFOV()), (float)gWindowWidth / (float)gWindowHeight, 0.1f, 1000.0f);
 
-		//view position to be passed to fragment shader
-		glm::vec3 viewPos;
-		viewPos.x = fpsCamera.getPosition().x;
-		viewPos.y = fpsCamera.getPosition().y;
-		viewPos.z = fpsCamera.getPosition().z;
+
 
 		//set the light
 		glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
 		glm::vec3 lightColor(1.0f, 1.0f, 1.0f); //white color light
-
 
 
 		shaderProgram.use();
@@ -354,10 +236,15 @@ for (int i = 1; i < numModels; i++) {
 			glUniform3f(glGetUniformLocation(shaderProgram.getProgram(), "light.ambient"), 0.05f, 0.05f, 0.05f);
 			
 			
-			if (i == 0) { // Sun or sapce
+			if (i == 0 || i==9) { // Sun or sapce
 				model = glm::translate(model, modelPos[i]) * glm::scale(model, modelScale[i]);
 
+				if (i == 0) {
+					glUniform3f(glGetUniformLocation(shaderProgram.getProgram(), "light.ambient"), 0.4f, 0.4f, 0.4f);
 
+				}
+			
+				if (i == 9) {
 
 					// Draw the light
 			;
@@ -374,11 +261,10 @@ for (int i = 1; i < numModels; i++) {
 						model = glm::rotate(model, glm::radians(selfRotationAngles[0]), glm::vec3(0.0f, 1.0f, 0.0f));
 					
 	
-							}
+				}			
+			}
 			else 
 			{ 
-				glUniform3f(glGetUniformLocation(shaderProgram.getProgram(), "light.ambient"), 0.05f, 0.05f, 0.05f);
-			/*	glUniform3f(glGetUniformLocation(shaderProgram.getProgram(), "light.ambient"), 0.4f, 0.4f, 0.4f);*/
 				if (Pmove ==true)
 				{
 					// Orbit rotation
@@ -424,8 +310,6 @@ for (int i = 1; i < numModels; i++) {
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
-	glDeleteVertexArrays(1, &skyboxVAO);
-	glDeleteBuffers(1, &skyboxVBO);
 
 	glfwTerminate();
 
@@ -534,7 +418,7 @@ void glfw_onMouseScroll(GLFWwindow* window, double deltaX, double deltaY)
 
 
 enum class PlanetType {
-	Sun = 0,
+	Sun = 9,
 	Mercury = 1,
 	Venus = 2,
 	Earth = 3,
@@ -543,6 +427,7 @@ enum class PlanetType {
 	Saturn = 6,
 	Uranus = 7,
 	Neptune = 8,
+	SolarSystem = 0,
 	FreeCamera = 10
 };
 PlanetType currentPlanet = PlanetType::FreeCamera;
@@ -568,7 +453,7 @@ void update(double elapsedTime)
 //Go to planet
 // Lock the camera to a planet based on key press
 	
-	if (glfwGetKey(gWindow, GLFW_KEY_0) == GLFW_PRESS)
+	if (glfwGetKey(gWindow, GLFW_KEY_9) == GLFW_PRESS)
 		currentPlanet = PlanetType::Sun;
 	else if (glfwGetKey(gWindow, GLFW_KEY_1) == GLFW_PRESS)
 		currentPlanet = PlanetType::Mercury;
@@ -586,6 +471,9 @@ void update(double elapsedTime)
 		currentPlanet = PlanetType::Uranus;
 	else if (glfwGetKey(gWindow, GLFW_KEY_8) == GLFW_PRESS)
 		currentPlanet = PlanetType::Neptune;
+	else if (glfwGetKey(gWindow, GLFW_KEY_0) == GLFW_PRESS)
+		currentPlanet = PlanetType::SolarSystem;
+
 	// Return to free camera control with the 'V' key
 	 if (glfwGetKey(gWindow, GLFW_KEY_V) == GLFW_PRESS)
 		currentPlanet = PlanetType::FreeCamera;
@@ -603,6 +491,8 @@ void update(double elapsedTime)
 		 fpsCamera.setFOV((float)45);
 	 }
 
+		 
+	 
 
 	
 	switch (currentPlanet) {
@@ -641,6 +531,11 @@ void update(double elapsedTime)
 	case PlanetType::Neptune:
 		fpsCamera.setPosition(glm::vec3(150.7784f, 2.20585f, -9.90607f));
 		fpsCamera.setLook(glm::vec3(0.268f, -0.149f, 0.951f));
+		break;
+	case PlanetType::SolarSystem:
+		Pmove = true;
+		fpsCamera.setPosition(glm::vec3(-125.16738f, 94.50468f, 22.046551f));
+		fpsCamera.setLook(glm::vec3(0.775134f, -0.61524f, -0.143633f));
 		break;
 	case PlanetType::FreeCamera:
 		// Do nothing, allow free camera control
@@ -718,7 +613,7 @@ void showFPS(GLFWwindow* window)
 
 void updatePlanet(double deltaTime) {
 	// Update planet angles
-	float rotationSpeeds[numBodies-1] = { 0.5f, 0.3f, 0.2f, 0.19f , 0.18f, 0.16f, 0.14f, 0.10f }; // Example speeds
+	float rotationSpeeds[numBodies-1] = { 0.5f, 0.3f, 0.2f, 0.19f , 0.1f, 0.09f, 0.05f, 0.03f }; // Example speeds
 	for (int i = 0; i < numBodies-1; i++) {
 		planetAngles[i] += rotationSpeeds[i] * deltaTime;
 	}
@@ -727,7 +622,7 @@ void updatePlanet(double deltaTime) {
 
 void updateSelfRotation(double deltaTime) {
 	// Example self-rotation speeds for all bodies including the sun
-	float selfRotationSpeeds[numBodies] = { 1.0f, 10.0f, 15.0f, 20.0f, 25.0f, 20.0f, 19.0f, 18.0f, 17.0f };
+	float selfRotationSpeeds[numBodies] = { 1.0f, 10.0f, 9.8f, 9.5f, 10.0f, 7.2f, 7.0f, 5.0f, 6.0f };
 
 	for (int i = 0; i < numBodies; i++) {
 		selfRotationAngles[i] += selfRotationSpeeds[i] * deltaTime;
@@ -737,31 +632,4 @@ void updateSelfRotation(double deltaTime) {
 			selfRotationAngles[i] -= 360.0f;
 		}
 	}
-}
-
-unsigned int loadCubemap(std::vector<std::string> faces) {
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-
-	int width, height, nrChannels;
-	for (unsigned int i = 0; i < faces.size(); i++) {
-		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
-		if (data) {
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-			stbi_image_free(data);
-		}
-		else {
-			std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
-			stbi_image_free(data);
-		}
-	}
-
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-	return textureID;
 }
