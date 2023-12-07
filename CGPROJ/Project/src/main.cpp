@@ -20,10 +20,10 @@ int gWindowWidth = 1920;
 int gWindowHeight = 1080;
 GLFWwindow* gWindow = NULL;
 bool gWireframe = false;
-const int numBodies = 9; // Including the sun and excluding space
+const int numBodies = 9; // Including the sun and excluding space 
 float planetAngles[numBodies] = { 0.0f }; // Initial angles
 float selfRotationAngles[numBodies] = { 0.0f }; // Self-rotation angles for each model
-float axialTilt[numBodies] = { 7.25f, 0.01f, 2.64f, 23.44f, 25.19f, 3.12f, 26.73f, 82.23f, 28.33f };
+float axialTilt[numBodies] = { 7.25f, 0.01f, 2.64f, 23.44f, 25.19f, 3.12f, 26.73f, 82.23f, 28.33f }; // each axis-tilt angle that has been collected from wikipedia.
 GLfloat scale = 0.3f;
 
 
@@ -192,6 +192,7 @@ for (int i = 1; i < numModels; i++) {
 		ImGui::Text("Press P to Pause/Unpause ");
 		ImGui::Text("Press . to increase speed ");
 		ImGui::Text("Press , to decrease speed ");
+		ImGui::Text("Scroll up/down to zoom in/zoom out ");
 		ImGui::Text("Press V to unlock camera");
 		ImGui::End();
 
@@ -247,7 +248,7 @@ for (int i = 1; i < numModels; i++) {
 				if (i == 9) {
 
 					// Draw the light
-			;
+			
 					lightShader.use();
 					lightShader.setUniform("lightColor", lightColor);
 					lightShader.setUniform("model", model);
@@ -287,15 +288,11 @@ for (int i = 1; i < numModels; i++) {
 			}
 			shaderProgram.setUniform("model", model);
 
-			//set material properties
-			shaderProgram.setUniform("material.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-			shaderProgram.setUniformSampler("material.diffuseMap", 0);
-			shaderProgram.setUniform("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
-			shaderProgram.setUniform("material.shininess", 45.0f);
+
 
 		
 
-			texture[i].bind(0);		// set the texture before drawing.  Our simple OBJ mesh loader does not do materials yet.
+			texture[i].bind(0);		
 			mesh[i].draw();			// Render the OBJ mesh
 			texture[i].unbind(0);
 		}
@@ -317,9 +314,7 @@ for (int i = 1; i < numModels; i++) {
 }
 
 
-//-----------------------------------------------------------------------------
-// Initialize GLFW and OpenGL
-//-----------------------------------------------------------------------------
+
 bool initOpenGL()
 {
 	// Intialize GLFW 
@@ -376,9 +371,7 @@ bool initOpenGL()
 	return true;
 }
 
-//-----------------------------------------------------------------------------
-// Is called whenever a key is pressed/released via GLFW
-//-----------------------------------------------------------------------------
+
 void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -394,9 +387,7 @@ void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode)
 	}
 }
 
-//-----------------------------------------------------------------------------
-// Is called when the window is resized
-//-----------------------------------------------------------------------------
+
 void glfw_onFramebufferSize(GLFWwindow* window, int width, int height)
 {
 	gWindowWidth = width;
@@ -404,9 +395,7 @@ void glfw_onFramebufferSize(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-//-----------------------------------------------------------------------------
-// Called by GLFW when the mouse wheel is rotated
-//-----------------------------------------------------------------------------
+
 void glfw_onMouseScroll(GLFWwindow* window, double deltaX, double deltaY)
 {
 	double fov = fpsCamera.getFOV() + deltaY * ZOOM_SENSITIVITY;
@@ -431,9 +420,8 @@ enum class PlanetType {
 	FreeCamera = 10
 };
 PlanetType currentPlanet = PlanetType::FreeCamera;
-//-----------------------------------------------------------------------------
-// Update stuff every frame
-//-----------------------------------------------------------------------------
+
+
 void update(double elapsedTime)
 {
 	// Camera orientation
@@ -571,10 +559,7 @@ void update(double elapsedTime)
 
 }
 
-//-----------------------------------------------------------------------------
-// Code computes the average frames per second, and also the average time it takes
-// to render one frame.  These stats are appended to the window caption bar.
-//-----------------------------------------------------------------------------
+
 void showFPS(GLFWwindow* window)
 {
 	static double previousSeconds = 0.0;
@@ -612,8 +597,7 @@ void showFPS(GLFWwindow* window)
 
 
 void updatePlanet(double deltaTime) {
-	// Update planet angles
-	float rotationSpeeds[numBodies-1] = { 0.5f, 0.3f, 0.2f, 0.19f , 0.1f, 0.09f, 0.05f, 0.03f }; // Example speeds
+	float rotationSpeeds[numBodies-1] = { 0.5f, 0.3f, 0.2f, 0.19f , 0.1f, 0.09f, 0.05f, 0.03f };
 	for (int i = 0; i < numBodies-1; i++) {
 		planetAngles[i] += rotationSpeeds[i] * deltaTime;
 	}
@@ -621,7 +605,6 @@ void updatePlanet(double deltaTime) {
 
 
 void updateSelfRotation(double deltaTime) {
-	// Example self-rotation speeds for all bodies including the sun
 	float selfRotationSpeeds[numBodies] = { 1.0f, 10.0f, 9.8f, 9.5f, 10.0f, 7.2f, 7.0f, 5.0f, 6.0f };
 
 	for (int i = 0; i < numBodies; i++) {

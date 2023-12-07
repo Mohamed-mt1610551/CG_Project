@@ -1,0 +1,19 @@
+#
+#
+#
+
+newmtl 13907_Uranus Mesh_13907_Uranus_planet
+illum 2
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ns 10.000000
+map_Kd 13907_Uranus_planet_diff.JPG
+
+newmtl 13907_Uranus_rings Mesh_13907_Uranus_rings
+illum 2
+Ka 0.651000 0.651000 0.651000
+Kd 0.651000 0.651000 0.651000
+Ks 0.000000 0.000000 0.000000
+Ns 10.000000
+

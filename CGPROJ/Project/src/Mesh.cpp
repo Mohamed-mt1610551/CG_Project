@@ -131,7 +131,7 @@ bool Mesh::loadOBJ(const std::string& filename)
 						faceVertexIndices.push_back(vertexIndex);
 					}
 
-					// Assuming your OBJ has the same number of UVs and normals as vertices
+		
 					if (data.size() >= 2 && !data[1].empty()) // UVs
 					{
 						int uvIndex = std::stoi(data[1]);
@@ -176,10 +176,7 @@ bool Mesh::loadOBJ(const std::string& filename)
 					uvIndices.insert(uvIndices.end(), faceUVIndices.begin(), faceUVIndices.end());
 					normalIndices.insert(normalIndices.end(), faceNormalIndices.begin(), faceNormalIndices.end());
 				}
-				else
-				{
-					// Handle non-triangle faces, if necessary
-				}
+	
 			}
 		}
 
