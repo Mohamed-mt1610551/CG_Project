@@ -1,2 +1,2 @@
 # CG_Project
-computer graphics project
+Solar System Simulation created using OpenGL.
